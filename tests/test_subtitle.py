@@ -2,15 +2,15 @@ import requests
 from moviepy import *
 import re
 
-subtitle_font = "fonts/Corporate-Logo-Rounded-Bold-ver3.otf"
-subtitle_font_size = 24
-subtitle_color = 'white'
-subtitle_stroke_color = 'black'
-subtitle_stroke_width = 2
-
 
 # 字幕クリップの作成
 def make_subtitle_clip(text):
+    subtitle_font = "fonts/Corporate-Logo-Rounded-Bold-ver3.otf"
+    subtitle_font_size = 24
+    subtitle_color = 'white'
+    subtitle_stroke_color = 'black'
+    subtitle_stroke_width = 2
+
     # 音声合成の関数を呼び出して音声クリップを作成
     voice_clip = make_voice_clip(text)
     clip_duration = voice_clip.duration
@@ -57,6 +57,4 @@ def make_voice_clip(text, speaker=1, speed=1):
     
     return audio_clip
 
-text = "こんにちは、今日は「国境」に隠された不思議について、ちょっと深掘りしていきましょう。"
-make_subtitle_clip(text)
         

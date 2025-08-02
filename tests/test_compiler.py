@@ -13,7 +13,9 @@ def analyze_text(full_text):
         #その行がコマンドかテキスト文かの判別
         if line[0] =='\\':
             analyzed_list.append({'type': 'command','text': line })
+            #if line[1:]
         else:
             analyzed_list.append({'type': 'text', 'text': line})
+            print(f"テキスト: {line}")
         
     return analyzed_list
