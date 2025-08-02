@@ -1,7 +1,7 @@
 import tkinter
 from tkinter import scrolledtext
 
-class editor(tkinter.Frame):
+class Editor(tkinter.Frame):
     def __init__(self, root):
         super().__init__()
         
@@ -29,14 +29,15 @@ class editor(tkinter.Frame):
         # ウィンドウのリサイズに追従させる
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
-        
+    
+    # 実行ボタンがクリックされたときの処理
     def execution(self):
-        # ボタンがクリックされたときの処理
+        
         text_content = self.text_entry.get("1.0", tkinter.END)
         print("実行ボタンがクリックされました。テキスト内容:")
         print(text_content)
         
 if __name__ == "__main__":
     root = tkinter.Tk()
-    app = editor(root)
+    app = Editor(root)
     root.mainloop()
