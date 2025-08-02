@@ -1,4 +1,5 @@
 import re
+from test_edit import *
 
 def analyze_text(full_text):
     analyzed_list = []
@@ -26,12 +27,15 @@ def analyze_text(full_text):
                 # コマンド名で関数呼び出し
                 if command == 'section':
                     section(**kwargs)
+                elif command == 'delay':
+                    delay(**kwargs)
+                elif command == 'image':
+                    image(**kwargs)
                 elif command == 'setSubtitleScale':
                     set_subtitle_scale(**kwargs)
                 elif command == 'setTalkSpeed':
                     set_talk_speed(**kwargs)
-                elif command == 'delay':
-                    delay(**kwargs)
+                
 
         else:
             analyzed_list.append({'type': 'text', 'text': line})
@@ -50,12 +54,3 @@ def parse_kwargs(arg_str):
         else:
             kwargs[part.strip()] = ""  # キーのみ（値なし）の場合
     return kwargs
-
-def section(**kwargs):
-    print(f"  → section関数: {kwargs}")
-
-def image(**kwargs):
-    print(f"  → image関数: {kwargs}")
-
-def delay(**kwargs):
-    print(f"  → delay関数: {kwargs}")
