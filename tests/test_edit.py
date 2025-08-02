@@ -1,18 +1,21 @@
 import re
 from moviepy import *
 
-def image(path):
-     #画像クリップを生成
-     try:
-        return ImageClip(path).set_duration(duration)
-     except Exception as e:
+def image(**kwargs):
+    path = kwargs.get('path')
+    duration = float(kwargs.get('duration'))
+    try:
+        return ImageClip(path)
+    except Exception as e:
         return None
-     
-def section(text, duration):
-    #セクションタイトル（テロップ）を生成
-    return TextClip(text, fontsize=70, color='white', font='Arial-Bold').set_duration(duration)
 
-def delay(duration):
-    #無音クリップ（間）を生成
-    return ColorClip(size=(1, 1), color=(0, 0, 0), duration=duration)
+def section(**kwargs):
+    text = kwargs.get('text', ' ')
+    duration = float(kwargs.get('duration', 3))
 
+    return TextClip(text, fontsize=70, color='white', font='Arial-Bold').with_duratio(duration)
+
+def delay(**kwargs):
+    duration = float(kwargs.get('duration', 1))
+    
+    return AudioClip(lambda t: 0, duration=duration)
