@@ -21,5 +21,3 @@ def delay(**kwargs):
     duration = float(kwargs.get('duration', 1))
     
     return AudioClip(lambda t: 0, duration=duration)
-
-section(text="セクションタイトル", duration=3)
