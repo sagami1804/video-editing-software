@@ -7,7 +7,7 @@ def analyze_text(full_text):
 
     for line in text_line:
         if line[0] =='\\':
-            analyzed_list.append({'type': 'text','command': line })
+            analyzed_list.append({'type': 'command','text': line })
         else:
             analyzed_list.append({'type': 'text', 'text': line})
         
