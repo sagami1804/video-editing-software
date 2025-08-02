@@ -38,7 +38,8 @@ class Editor(tkinter.Frame):
         text_content = self.text_entry.get("1.0", tkinter.END)
         print("実行ボタンがクリックされました。テキスト内容:")
         print(text_content)
-        analyze_text(text_content)
+        clip = analyze_text(text_content)
+        clip.preview()
     
     # ファイルを開く
     def open_file_dialog(self):

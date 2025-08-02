@@ -10,19 +10,24 @@ def make_subtitle_clip(text):
     subtitle_color = 'white'
     subtitle_stroke_color = 'black'
     subtitle_stroke_width = 2
+    speaker = 1
+    speed = 1
+    silence_duration = 1  # 音声合成の間の無音時間（秒）
 
     # 音声合成の関数を呼び出して音声クリップを作成
-    voice_clip = make_voice_clip(text)
+    voice_clip = make_voice_clip(text, speaker=speaker, speed=speed)
     clip_duration = voice_clip.duration
     
     # テキストクリップを作成
-    subtitle_clip = TextClip(text=text, font=subtitle_font, font_size=subtitle_font_size, color=subtitle_color, stroke_color=subtitle_stroke_color, subtitle_stroke_width=3, size=(1700, 100), method='caption')
-    subtitle_clip = subtitle_clip.with_position(('center', 'bottom')).with_duration(clip_duration)
+    subtitle_clip = TextClip(text=text, font=subtitle_font, font_size=subtitle_font_size, color=subtitle_color, stroke_color=subtitle_stroke_color, stroke_width=subtitle_stroke_width, size=(1700, 100), method='caption')
+    subtitle_clip = subtitle_clip.with_position(('center', 'bottom')).with_duration(clip_duration+silence_duration)
     video_clip = CompositeVideoClip([subtitle_clip])
     video_clip = video_clip.with_audio(voice_clip)
     
+    return video_clip
+    
 # 音声合成
-def make_voice_clip(text, speaker=1, speed=1):
+def make_voice_clip(text, speaker=1, speed=1, silence_duration=1):
     filename = re.sub(r'[\\/*?:"<>|]', "_", text)
     filepath = f"data/temp_data/voice_{filename}.wav"
     
@@ -53,8 +58,10 @@ def make_voice_clip(text, speaker=1, speed=1):
         return
     
     # 音声クリップを作成
-    audio_clip = AudioFileClip(filepath)
-    
+    audio_clips = []
+    audio_clips.append(AudioFileClip(filepath)) # 音声ファイルを追加
+    audio_clips.append(AudioClip(lambda t: 0, duration=silence_duration, fps=44100)) # 無音クリップを追加
+    audio_clip = concatenate_audioclips(audio_clips) # クリップを結合
     return audio_clip
 
         
