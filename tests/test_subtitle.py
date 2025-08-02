@@ -1,7 +1,11 @@
 import requests
 from moviepy import *
+import re
 
-
+font = "fonts/Corporate-Logo-Rounded-Bold-ver3.otf"
+font_size = 24
+subtitle_color = 'white'
+subtitle_stroke_color = 'black'
 
 def make_subtitle_clip(text):
     # 音声合成の関数を呼び出して音声クリップを作成
@@ -9,17 +13,16 @@ def make_subtitle_clip(text):
     clip_duration = voice_clip.duration
     
     # テキストクリップを作成
-    subtitle_clip = TextClip(text=text, font_size=24, color='white', stroke_color='black', size=(1920, 1080), method='caption')
+    subtitle_clip = TextClip(text=text, font=font, font_size=font_size, color=subtitle_color, stroke_color=subtitle_stroke_color, stroke_width=3, size=(1700, 100), method='caption')
     subtitle_clip = subtitle_clip.with_position(('center', 'bottom')).with_duration(clip_duration)
     video_clip = CompositeVideoClip([subtitle_clip])
     video_clip = video_clip.with_audio(voice_clip)
-    video_clip.write_videofile("subtitle_video.mp4", fps=24, codec="libx264", audio_codec="aac")
-    
-    
     
 # 音声合成の関数
 def make_voice_clip(text, speaker=1, speed=1):
-    filepath = f"data/temp_data/voice_{text}.wav"
+    filename = re.sub(r'[\\/*?:"<>|]', "_", text)
+    filepath = f"data/temp_data/voice_{filename}.wav"
+    
     
     # 1. テキストから音声合成のためのクエリを作成
     query_payload = {'text': text, 'speaker': speaker}
