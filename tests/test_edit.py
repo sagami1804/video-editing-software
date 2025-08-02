@@ -1,6 +1,6 @@
 import re
 from moviepy import *
-
+#画像クリップを生成
 def image(**kwargs):
     path = kwargs.get('path')
     duration = float(kwargs.get('duration'))
@@ -8,13 +8,13 @@ def image(**kwargs):
         return ImageClip(path)
     except Exception as e:
         return None
-
+#セクションタイトル（テロップ）を生成
 def section(**kwargs):
     text = kwargs.get('text', ' ')
     duration = float(kwargs.get('duration', 3))
 
     return TextClip(text, fontsize=70, color='white', font='Arial-Bold').with_duratio(duration)
-
+#無音の「音声クリップ」を生成
 def delay(**kwargs):
     duration = float(kwargs.get('duration', 1))
     
