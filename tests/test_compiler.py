@@ -8,6 +8,8 @@ def analyze_text(full_text):
 
     text_line = full_text.splitlines()
     clips = []
+    time_stamps = []
+    images = []
     current_time = 0.0
     '''
     txt_clip = TextClip(text="", font_size=70, color='white', font="fonts/Corporate-Logo-Rounded-Bold-ver3.otf", size=(1700, 300)).with_duration(1)
@@ -45,32 +47,38 @@ def analyze_text(full_text):
                     current_time += clip.duration
                     
                 elif command == 'delay':
-                    '''
-                    if isinstance(kwargs, dict):
-                        clip = delay(**kwargs)
-                    else:
-                        clip = delay(kwargs)
-                    clips.append(clip)
-                    current_time += clip.duration
-                    '''
                     current_time += 3  # 無音の長さを1秒と仮定
                     
-                elif command == 'image':
-                    if isinstance(kwargs, dict):
-                        image(**kwargs)
-                    else:
-                        image(kwargs)
                 elif command == 'setSubtitleScale':
                     if isinstance(kwargs, dict):
                         set_subtitle_scale(**kwargs)
                     else:
                         set_subtitle_scale(float(kwargs)) 
+                        
                 elif command == 'setTalkSpeed':
                     if isinstance(kwargs, dict):
                         set_talk_speed(**kwargs)
                     else:
                         set_talk_speed(float(kwargs)) 
                 
+                elif command == 'begin':
+                    match = re.match(r"\\begin\{(\w+)\}(?:\[(.*?)\])?", line)
+
+                    if match:
+                        env_name = match.group(1)  # {}の中身
+                        arg = match.group(2)       # []の中身（なければ None）
+                    if env_name  == 'image':
+                        time_stamps.append(current_time)
+                        images.append(arg)
+                        
+                elif command == 'end':
+                    match = re.match(r"\\end\{(\w+)\}", line)
+                    if match:
+                        env_name = match.group(1)  # {}の中身
+                        if env_name == 'image':
+                            clip = image(current_time, time_stamps[-1], images[-1])
+                            clips.append(clip)
+                            
         else:
             clip = make_subtitle_clip(line).with_start(current_time)
             clips.append(clip)
@@ -79,7 +87,7 @@ def analyze_text(full_text):
         print(current_time)
     
     # クリップを結合
-    background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time)
+    background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time).with_opacity(0)
     final = CompositeVideoClip([background] + clips, size=(1920, 1080)).with_duration(current_time)
     return final
 

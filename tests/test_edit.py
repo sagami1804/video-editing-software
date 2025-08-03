@@ -1,13 +1,10 @@
 import re
 from moviepy import *
 #画像クリップを生成
-def image(**kwargs):
-    path = kwargs.get('path')
-    duration = float(kwargs.get('duration'))
-    try:
-        return ImageClip(path)
-    except Exception as e:
-        return None
+def image(current_time, start_time, path):
+    img_clip = ImageClip(path).with_duration(current_time - start_time).with_start(start_time)
+    img_clip = img_clip.with_position(('center', 'center'))
+    return img_clip
     
 #セクションタイトル（テロップ）を生成
 def section(**kwargs):
