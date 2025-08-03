@@ -9,11 +9,13 @@ def analyze_text(full_text):
     text_line = full_text.splitlines()
     clips = []
     current_time = 0.0
+    '''
     txt_clip = TextClip(text="", font_size=70, color='white', font="fonts/Corporate-Logo-Rounded-Bold-ver3.otf", size=(1700, 300)).with_duration(1)
     audio_clip = AudioClip(lambda t: 0, duration=1, fps=44100)
     clip = txt_clip.with_audio(audio_clip)
     clips.append(clip)
     current_time += clip.duration
+    '''
     
     for line in text_line:
         line = line.strip()
@@ -36,19 +38,22 @@ def analyze_text(full_text):
                 # コマンド名で関数呼び出し
                 if command == 'section':
                     if isinstance(kwargs, dict):
-                        clip = section(**kwargs,start_time=current_time)
+                        clip = section(**kwargs,start_time=current_time).with_start(current_time)
                     else:
-                        clip = section(kwargs)
+                        clip = section(kwargs).with_start(current_time)
                     clips.append(clip)
                     current_time += clip.duration
                     
                 elif command == 'delay':
+                    '''
                     if isinstance(kwargs, dict):
                         clip = delay(**kwargs)
                     else:
                         clip = delay(kwargs)
                     clips.append(clip)
                     current_time += clip.duration
+                    '''
+                    current_time += 3  # 無音の長さを1秒と仮定
                     
                 elif command == 'image':
                     if isinstance(kwargs, dict):
@@ -67,22 +72,16 @@ def analyze_text(full_text):
                         set_talk_speed(float(kwargs)) 
                 
         else:
-            analyzed_list.append({'type': 'text', 'text': line})
-            # テキストクリップの作成
-            clip = make_subtitle_clip(line,current_time)
+            clip = make_subtitle_clip(line).with_start(current_time)
             clips.append(clip)
             current_time += clip.duration
         
         print(current_time)
     
     # クリップを結合
-    background_clip = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time)
-    valid_clips = [clip for clip in clips if clip is not None]
-    clip = concatenate_videoclips(valid_clips, method="compose")
-    clip = CompositeVideoClip([background_clip] + [clip], size=(1920, 1080))
-    print("クリップが結合されました。")
-
-    return clip
+    background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time)
+    final = CompositeVideoClip([background] + clips, size=(1920, 1080)).with_duration(current_time)
+    return final
 
 def parse_kwargs(arg_str):
     # 空なら空辞書

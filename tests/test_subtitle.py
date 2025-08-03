@@ -5,9 +5,9 @@ import os
 
 
 # 字幕クリップの作成
-def make_subtitle_clip(text,current_time):
+def make_subtitle_clip(text):
     subtitle_font = "fonts/Corporate-Logo-Rounded-Bold-ver3.otf"
-    subtitle_font_size = 24
+    subtitle_font_size = 35
     subtitle_color = 'white'
     subtitle_stroke_color = 'black'
     subtitle_stroke_width = 2
@@ -21,9 +21,8 @@ def make_subtitle_clip(text,current_time):
     
     # テキストクリップを作成
     subtitle_clip = TextClip(text=text, font=subtitle_font, font_size=subtitle_font_size, color=subtitle_color, stroke_color=subtitle_stroke_color, stroke_width=subtitle_stroke_width, size=(1700, 100), method='caption')
-    subtitle_clip = subtitle_clip.with_position(('center', 'bottom')).with_duration(clip_duration).with_start(0)
-    video_clip = CompositeVideoClip([subtitle_clip])
-    video_clip = video_clip.with_audio(voice_clip)
+    subtitle_clip = subtitle_clip.with_position(('center', 'bottom')).with_duration(clip_duration)
+    video_clip = subtitle_clip.with_audio(voice_clip)
     
     return video_clip
     

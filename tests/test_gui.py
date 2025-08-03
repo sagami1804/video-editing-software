@@ -39,7 +39,7 @@ class Editor(tkinter.Frame):
         print("実行ボタンがクリックされました。テキスト内容:")
         print(text_content)
         clip = analyze_text(text_content)
-        clip.preview()
+        clip.write_videofile("output.mp4", fps=24, codec='libx264', audio_codec='aac')
     
     # ファイルを開く
     def open_file_dialog(self):
