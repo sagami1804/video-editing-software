@@ -38,8 +38,21 @@ class Editor(tkinter.Frame):
         text_content = self.text_entry.get("1.0", tkinter.END)
         print("実行ボタンがクリックされました。テキスト内容:")
         print(text_content)
+        
+        # テキスト内容を解析して動画クリップを生成
+        print("テキスト内容を解析して動画クリップを生成します...")
         clip = analyze_text(text_content)
-        clip.write_videofile("output.mp4", fps=24, codec='libx264', audio_codec='aac')
+        
+        # 動画クリップの書き出し
+        print("動画クリップの書き出しを開始します...")
+        clip.fps = 30
+        clip.write_videofile(
+            "output.mp4",
+            codec="h264_nvenc",  # ← GPUエンコード
+            audio_codec="aac",
+            threads=10,  # スレッド数も指定可能
+            bitrate="5M"
+        )
     
     # ファイルを開く
     def open_file_dialog(self):
