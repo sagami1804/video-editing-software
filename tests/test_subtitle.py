@@ -26,7 +26,7 @@ def make_voice_clip(text, speaker=1, speed=1, silence_duration=1):
     filename = re.sub(r'[\\/*?:"<>|]', "_", text)
     filepath = f"data/temp_data/voice_{filename}_{speed}_{speaker}.wav"
     
-    if not os.path.exists(filepath):
+    if not os.path.exists(filepath): # ファイルが存在しない場合のみ音声合成を実行
         # 1. テキストから音声合成のためのクエリを作成
         query_payload = {'text': text, 'speaker': speaker}
         query_response = requests.post(f'http://localhost:50021/audio_query', params=query_payload)
