@@ -1,24 +1,70 @@
 import re
 from moviepy import *
+from __init__ import *
+
 #画像クリップを生成
 def image(current_time, start_time, path):
-    img_clip = ImageClip(path).with_duration(current_time - start_time).with_start(start_time)
+    img_clip = ImageClip(f"images/{path}").with_duration(current_time - start_time).with_start(start_time)
+    
+    # 画面にフィットするように拡大（どちらかが大きくなる）
+    img_clip = img_clip.resized(lambda t: max(1920 / img_clip.w, 1080 / img_clip.h))
+    
+    # 中心からクロップして1920x1080にする
+    img_clip = img_clip.cropped(x_center=img_clip.w / 2,
+                             y_center=img_clip.h / 2,
+                             width=1920, height=1080)
     img_clip = img_clip.with_position(('center', 'center'))
     return img_clip
     
-#セクションタイトル（テロップ）を生成
-def section(**kwargs):
+#タイトルクリップを生成
+def title(**kwargs):
+    config = kwargs.get('config', Config())
     text = kwargs.get('text', ' ')
     duration = float(kwargs.get('duration', 3))
-    clip = TextClip(text=text, font_size=100, color='white', font="fonts/Corporate-Logo-Rounded-Bold-ver3.otf", size=(1700, 300)).with_duration(duration)
+    clip = TextClip(text=text, font_size=config.TITLE_FONT_SIZE, color=config.TITLE_FONT_COLOR, font=config.TITLE_FONT, size=(1700, 300)).with_duration(duration)
     clip = clip.with_position(('center', 'center'))
     return clip
 
-#無音の「音声クリップ」を生成
-def delay(**kwargs):
-    duration = float(kwargs.get('duration', 1))
-    clip = TextClip(text="", font_size=70, color='white', font="fonts/Corporate-Logo-Rounded-Bold-ver3.otf", size=(1700, 300)).with_duration(duration)
-    video_clip = CompositeVideoClip([clip])
-    audio_clip = AudioClip(lambda t: 0, duration=duration, fps=44100)
-    video_clip = video_clip.with_audio(audio_clip)
-    return video_clip
+#SEクリップを生成
+def se(**kwargs):
+    path = kwargs.get('path', 'default_se.wav')
+    volume = float(kwargs.get('volume', 0.7))
+    se = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
+    background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(se.duration).with_opacity(0)
+    se = background.with_audio(se)      
+    return se
+
+def bgm(current_time, start_time, kwargs):
+    path = kwargs.get('path', 'default_bgm.mp3')
+    volume = float(kwargs.get('volume', 0.2))
+    bgm_clip = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
+    bgm_loop = bgm_clip.with_effects([afx.AudioLoop(duration=current_time - start_time)])
+    background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(bgm_loop.duration).with_opacity(0)
+    bgm_clip = background.with_audio(bgm_loop).with_start(start_time)
+    return bgm_clip
+
+#字幕設定を更新
+def set_subtitle(**kwargs):
+    config = kwargs.get('config', Config())
+    config.SUBTITLE_FONT_SIZE = int(kwargs.get('size', config.SUBTITLE_FONT_SIZE))
+    config.SUBTITLE_FONT_COLOR = kwargs.get('color', config.SUBTITLE_FONT_COLOR)
+    config.SUBTITLE_FONT_STROKE_COLOR = kwargs.get('stroke_color', config.SUBTITLE_FONT_STROKE_COLOR)
+    config.SUBTITLE_FONT_STROKE_WIDTH = int(kwargs.get('stroke_width', config.SUBTITLE_FONT_STROKE_WIDTH))
+    print(f"字幕の設定を更新: フォントサイズ={config.SUBTITLE_FONT_SIZE}, 色={config.SUBTITLE_FONT_COLOR}, ストローク色={config.SUBTITLE_FONT_STROKE_COLOR}, ストローク幅={config.SUBTITLE_FONT_STROKE_WIDTH}")
+    
+#タイトル設定を更新
+def set_title(**kwargs):
+    config = kwargs.get('config', Config())
+    config.TITLE_FONT_SIZE = int(kwargs.get('size', config.TITLE_FONT_SIZE))
+    config.TITLE_FONT_COLOR = kwargs.get('color', config.TITLE_FONT_COLOR)
+    config.TITLE_FONT_STROKE_COLOR = kwargs.get('stroke_color', config.TITLE_FONT_STROKE_COLOR)
+    config.TITLE_FONT_STROKE_WIDTH = int(kwargs.get('stroke_width', config.TITLE_FONT_STROKE_WIDTH))
+    print(f"タイトルの設定を更新: フォントサイズ={config.TITLE_FONT_SIZE}, 色={config.TITLE_FONT_COLOR}, ストローク色={config.TITLE_FONT_STROKE_COLOR}, ストローク幅={config.TITLE_FONT_STROKE_WIDTH}")
+
+# 話すスピードを設定
+def set_talk(**kwargs):
+    config = kwargs.get('config', Config())
+    config.TALK_SPEED = float(kwargs.get('speed', config.TALK_SPEED))
+    config.SILENCE_DURATION = float(kwargs.get('silence_duration', config.SILENCE_DURATION))
+    print(f"話すスピードを設定: {config.TALK_SPEED}")
+    
