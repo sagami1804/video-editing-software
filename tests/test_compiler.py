@@ -41,14 +41,14 @@ def analyze_text(full_text):
                         clip = title(**kwargs).with_start(current_time)
                     else:
                         print("titleの引数が不正です。辞書形式で渡してください。")
-                    clips.append(clip)  # タイトルクリップを追加
+                    clips.append({"clip": clip, "z": 1})  # タイトルクリップを追加
                     current_time += clip.duration   # 現在の動画時間を更新
                 
                 # SEクリップの生成
                 elif command == 'se':
                     if isinstance(kwargs, dict):
                         clip = se(**kwargs).with_start(current_time)  # SEクリップの生成
-                        clips.append(clip)  # SEクリップを追加
+                        clips.append({"clip": clip, "z": 0})  # SEクリップを追加
                     else:
                         print("seの引数が不正です。辞書形式で渡してください。")
                     
@@ -85,17 +85,18 @@ def analyze_text(full_text):
                         env_name = match.group(1)  # {}の中身
                         if env_name == 'image': # 画像クリップの終了
                             clip = image(current_time, image_time_stamps[-1], images[-1]) # 画像クリップを生成
-                            clips.append(clip)
+                            clips.append({"clip": clip, "z": 0})
                         elif env_name == 'bgm':  # BGMの終了
                             clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])  # BGMクリップを生成
-                            clips.append(clip)
+                            clips.append({"clip": clip, "z": 0})
                             
         else:   # テキスト行の処理
             clip = make_subtitle_clip(line,config).with_start(current_time) # 字幕クリップの生成
-            clips.append(clip)  # 字幕クリップを追加
+            clips.append({"clip": clip, "z": 2})  # 字幕クリップを追加
             current_time += clip.duration   # 現在の動画時間を更新
     
     # クリップを結合
+    clips = [item["clip"] for item in sorted(clips, key=lambda x: x["z"])]  # z値でソート
     background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time).with_opacity(0)    # 背景クリップを生成
     final = CompositeVideoClip([background] + clips, size=(1920, 1080)).with_duration(current_time) # すべてのクリップを合成
     return final
