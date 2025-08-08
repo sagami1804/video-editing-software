@@ -21,8 +21,6 @@ def make_subtitle_clip(text,config):
     
 # 音声合成
 def make_voice_clip(text, speaker=1, speed=1, silence_duration=1):
-    print("音声合成を開始します")
-    print(speed)
     filename = re.sub(r'[\\/*?:"<>|]', "_", text)
     filepath = f"data/temp_data/voice_{filename}_{speed}_{speaker}.wav"
     

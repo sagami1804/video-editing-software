@@ -47,7 +47,7 @@ class Editor(tkinter.Frame):
         print("動画クリップの書き出しを開始します...")
         clip.fps = 30
         clip.write_videofile(
-            "output.mp4",
+            "output/output.mp4",
             codec="h264_nvenc",  # ← GPUエンコード
             audio_codec="aac",
             threads=10,  # スレッド数も指定可能

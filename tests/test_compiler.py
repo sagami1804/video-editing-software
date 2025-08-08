@@ -7,8 +7,10 @@ from __init__ import *
 def analyze_text(full_text):
     analyzed_list = []  # 解析結果を格納するリスト
     clips = []  # 動画クリップを格納するリスト
-    time_stamps = []    # 画像のタイムスタンプを格納するリスト
+    image_time_stamps = []    # 画像のタイムスタンプを格納するリスト
     images = [] # 画像のパスを格納するリスト
+    bgm_time_stamps = []  # BGMのタイムスタンプを格納するリスト
+    bgms = []  # BGMのパスを格納するリスト
     config = Config()  # 設定を初期化
     current_time = 0.0  # 現在の動画時間を初期化
     
@@ -41,6 +43,14 @@ def analyze_text(full_text):
                         print("titleの引数が不正です。辞書形式で渡してください。")
                     clips.append(clip)  # タイトルクリップを追加
                     current_time += clip.duration   # 現在の動画時間を更新
+                
+                # SEクリップの生成
+                elif command == 'se':
+                    if isinstance(kwargs, dict):
+                        clip = se(**kwargs).with_start(current_time)  # SEクリップの生成
+                        clips.append(clip)  # SEクリップを追加
+                    else:
+                        print("seの引数が不正です。辞書形式で渡してください。")
                     
                 elif command == 'delay':    # 遅延時間の追加
                     current_time += float(kwargs)
@@ -51,11 +61,11 @@ def analyze_text(full_text):
                     else:
                         print("setSubtitleScaleの引数が不正です。辞書形式で渡してください。")
                         
-                elif command == 'setTalkSpeed': # 話すスピードの設定
+                elif command == 'setTalk': # 話すスピードの設定
                     if isinstance(kwargs, dict):
-                        set_talk_speed(**kwargs)
+                        set_talk(**kwargs)
                     else:
-                        set_talk_speed(float(kwargs),config) 
+                        print("setTalkSpeedの引数が不正です。辞書形式で渡してください。")
                 
                 elif command == 'begin':    # 環境の開始
                     match = re.match(r"\\begin\{(\w+)\}(?:\[(.*?)\])?", line)
@@ -63,15 +73,21 @@ def analyze_text(full_text):
                         env_name = match.group(1)  # {}の中身
                         arg = match.group(2)       # []の中身（なければ None）
                     if env_name  == 'image':    # 画像クリップの開始
-                        time_stamps.append(current_time)    #画像の開始時間を記録
+                        image_time_stamps.append(current_time)    #画像の開始時間を記録
                         images.append(arg)  # 画像のパスを記録
+                    elif env_name == 'bgm':
+                        bgm_time_stamps.append(current_time)  # BGMの開始時間を記録
+                        bgms.append(parse_kwargs(arg,config))  # BGMのオプションを記録
                         
                 elif command == 'end':  # 環境の終了
                     match = re.match(r"\\end\{(\w+)\}", line)
                     if match:
                         env_name = match.group(1)  # {}の中身
                         if env_name == 'image': # 画像クリップの終了
-                            clip = image(current_time, time_stamps[-1], images[-1]) # 画像クリップを生成
+                            clip = image(current_time, image_time_stamps[-1], images[-1]) # 画像クリップを生成
+                            clips.append(clip)
+                        elif env_name == 'bgm':  # BGMの終了
+                            clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])  # BGMクリップを生成
                             clips.append(clip)
                             
         else:   # テキスト行の処理

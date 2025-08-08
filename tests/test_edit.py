@@ -4,7 +4,7 @@ from __init__ import *
 
 #画像クリップを生成
 def image(current_time, start_time, path):
-    img_clip = ImageClip(path).with_duration(current_time - start_time).with_start(start_time)
+    img_clip = ImageClip(f"images/{path}").with_duration(current_time - start_time).with_start(start_time)
     img_clip = img_clip.with_position(('center', 'center'))
     return img_clip
     
@@ -16,6 +16,24 @@ def title(**kwargs):
     clip = TextClip(text=text, font_size=config.TITLE_FONT_SIZE, color=config.TITLE_FONT_COLOR, font=config.TITLE_FONT, size=(1700, 300)).with_duration(duration)
     clip = clip.with_position(('center', 'center'))
     return clip
+
+#SEクリップを生成
+def se(**kwargs):
+    path = kwargs.get('path', 'default_se.wav')
+    volume = float(kwargs.get('volume', 0.7))
+    se = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
+    background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(se.duration).with_opacity(0)
+    se = background.with_audio(se)      
+    return se
+
+def bgm(current_time, start_time, kwargs):
+    path = kwargs.get('path', 'default_bgm.mp3')
+    volume = float(kwargs.get('volume', 0.2))
+    bgm_clip = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
+    bgm_loop = bgm_clip.with_effects([afx.AudioLoop(duration=current_time - start_time)])
+    background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(bgm_loop.duration).with_opacity(0)
+    bgm_clip = background.with_audio(bgm_loop).with_start(start_time)
+    return bgm_clip
 
 #字幕設定を更新
 def set_subtitle(**kwargs):
@@ -36,7 +54,9 @@ def set_title(**kwargs):
     print(f"タイトルの設定を更新: フォントサイズ={config.TITLE_FONT_SIZE}, 色={config.TITLE_FONT_COLOR}, ストローク色={config.TITLE_FONT_STROKE_COLOR}, ストローク幅={config.TITLE_FONT_STROKE_WIDTH}")
 
 # 話すスピードを設定
-def set_talk_speed(speed=1.0,config=Config()):
-    config.TALK_SPEED = float(speed)
+def set_talk(**kwargs):
+    config = kwargs.get('config', Config())
+    config.TALK_SPEED = float(kwargs.get('speed', config.TALK_SPEED))
+    config.SILENCE_DURATION = float(kwargs.get('silence_duration', config.SILENCE_DURATION))
     print(f"話すスピードを設定: {config.TALK_SPEED}")
     
