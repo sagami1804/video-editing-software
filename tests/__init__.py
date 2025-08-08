@@ -1,4 +1,4 @@
-
+import tkinter
 #　設定を保存するクラス
 class Config:
     # 字幕の設定
@@ -18,4 +18,18 @@ class Config:
     # 動画の設定
     TALK_SPEED = 1.2
     SILENCE_DURATION = 0.5  # 音声合成の間の無音時間（秒）
-    SPERKERS = [1,2]
+    SPERKERS = [2,3]
+
+class TextRedirector:
+    def __init__(self, text_widget):
+        self.text_widget = text_widget
+
+    def write(self, message):
+        self.text_widget.after(0, self._append, message)
+
+    def _append(self, message):
+        self.text_widget.insert(tkinter.END, message)
+        self.text_widget.see(tkinter.END)  # スクロール追従
+
+    def flush(self):
+        pass  # 必須：print()内部でflushされるため

@@ -2,6 +2,8 @@ import tkinter
 from tkinter import scrolledtext
 from tkinter import filedialog
 from test_compiler import *
+import threading
+import sys
 
 class Editor(tkinter.Frame):
     def __init__(self, root):
@@ -26,13 +28,28 @@ class Editor(tkinter.Frame):
         self.text_entry.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)  # スクロール可能なテキストエリア
         
         # ボタンの作成
-        self.button = tkinter.Button(self.root, text="実行", width=10, command=self.execution)
+        self.button = tkinter.Button(self.root, text="実行", width=10, command=self.run_execution)
         self.button.grid(row=0, column=1, sticky="e", padx=10, pady=10) 
+        
+        # 実行ログ出力エリア
+        self.log_output = scrolledtext.ScrolledText(self.root, font=("Consolas", 10), height=10, state="normal")
+        self.log_output.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=10, pady=(0, 10))
+
+        # 標準出力と標準エラー出力をリダイレクト
+        sys.stdout = TextRedirector(self.log_output)
+        sys.stderr = TextRedirector(self.log_output)
+        
+        self.root.grid_rowconfigure(0, weight=3)  # テキスト入力
+        self.root.grid_rowconfigure(1, weight=1)  # ログ出力
+        self.root.grid_columnconfigure(0, weight=1)
         
         # ウィンドウのリサイズに追従させる
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
     
+    def run_execution(self):
+        threading.Thread(target=self.execution, daemon=True).start()
+        
     # 実行ボタンがクリックされたときの処理
     def execution(self):
         text_content = self.text_entry.get("1.0", tkinter.END)
@@ -45,13 +62,14 @@ class Editor(tkinter.Frame):
         
         # 動画クリップの書き出し
         print("動画クリップの書き出しを開始します...")
-        clip.fps = 30
+        clip = clip.resized((640, 360)).with_fps(2)  # 動画の解像度とフレームレートを設定
+        clip.preview(fps=2,audio_fps=11000,audio_buffersize=1000)  # プレビュー表示
         clip.write_videofile(
             "output/output.mp4",
-            codec="h264_nvenc",  # ← GPUエンコード
+            codec="libx264",  # ← GPUエンコード
             audio_codec="aac",
             threads=10,  # スレッド数も指定可能
-            bitrate="5M"
+            bitrate="3M"
         )
     
     # ファイルを開く

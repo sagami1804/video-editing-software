@@ -5,6 +5,14 @@ from __init__ import *
 #画像クリップを生成
 def image(current_time, start_time, path):
     img_clip = ImageClip(f"images/{path}").with_duration(current_time - start_time).with_start(start_time)
+    
+    # 画面にフィットするように拡大（どちらかが大きくなる）
+    img_clip = img_clip.resized(lambda t: max(1920 / img_clip.w, 1080 / img_clip.h))
+    
+    # 中心からクロップして1920x1080にする
+    img_clip = img_clip.cropped(x_center=img_clip.w / 2,
+                             y_center=img_clip.h / 2,
+                             width=1920, height=1080)
     img_clip = img_clip.with_position(('center', 'center'))
     return img_clip
     
