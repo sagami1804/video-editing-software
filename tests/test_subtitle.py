@@ -2,25 +2,18 @@ import requests
 from moviepy import *
 import re
 import os
+from __init__ import *
 
 
 # 字幕クリップの作成
-def make_subtitle_clip(text):
-    subtitle_font = "fonts/Corporate-Logo-Rounded-Bold-ver3.otf"
-    subtitle_font_size = 35
-    subtitle_color = 'white'
-    subtitle_stroke_color = 'black'
-    subtitle_stroke_width = 2
-    speaker = 1
-    speed = 1
-    silence_duration = 0.5  # 音声合成の間の無音時間（秒）
-
+def make_subtitle_clip(text,config):
     # 音声合成の関数を呼び出して音声クリップを作成
-    voice_clip = make_voice_clip(text, speaker=speaker, speed=speed, silence_duration=silence_duration)
+    voice_clip = make_voice_clip(text, speaker=config.SPERKERS[0], speed=config.TALK_SPEED, silence_duration=config.SILENCE_DURATION)
     clip_duration = voice_clip.duration
     
+    
     # テキストクリップを作成
-    subtitle_clip = TextClip(text=text, font=subtitle_font, font_size=subtitle_font_size, color=subtitle_color, stroke_color=subtitle_stroke_color, stroke_width=subtitle_stroke_width, size=(1700, 100), method='caption')
+    subtitle_clip = TextClip(text=text, font=config.SUBTITLE_FONT, font_size=config.SUBTITLE_FONT_SIZE, color=config.SUBTITLE_FONT_COLOR, stroke_color=config.SUBTITLE_FONT_STROKE_COLOR, stroke_width=config.SUBTITLE_FONT_STROKE_WIDTH, size=(1700, 100), method='caption')
     subtitle_clip = subtitle_clip.with_position(('center', 'bottom')).with_duration(clip_duration)
     video_clip = subtitle_clip.with_audio(voice_clip)
     
@@ -28,10 +21,12 @@ def make_subtitle_clip(text):
     
 # 音声合成
 def make_voice_clip(text, speaker=1, speed=1, silence_duration=1):
+    print("音声合成を開始します")
+    print(speed)
     filename = re.sub(r'[\\/*?:"<>|]', "_", text)
-    filepath = f"data/temp_data/voice_{filename}.wav"
+    filepath = f"data/temp_data/voice_{filename}_{speed}_{speaker}.wav"
     
-    if not os.path.exists(filepath):
+    if not os.path.exists(filepath): # ファイルが存在しない場合のみ音声合成を実行
         # 1. テキストから音声合成のためのクエリを作成
         query_payload = {'text': text, 'speaker': speaker}
         query_response = requests.post(f'http://localhost:50021/audio_query', params=query_payload)

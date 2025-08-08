@@ -2,96 +2,90 @@ import re
 from test_edit import *
 from test_subtitle import *
 from moviepy import *
+from __init__ import *
 
 def analyze_text(full_text):
-    analyzed_list = []
-
-    text_line = full_text.splitlines()
-    clips = []
-    time_stamps = []
-    images = []
-    current_time = 0.0
-    '''
-    txt_clip = TextClip(text="", font_size=70, color='white', font="fonts/Corporate-Logo-Rounded-Bold-ver3.otf", size=(1700, 300)).with_duration(1)
-    audio_clip = AudioClip(lambda t: 0, duration=1, fps=44100)
-    clip = txt_clip.with_audio(audio_clip)
-    clips.append(clip)
-    current_time += clip.duration
-    '''
+    analyzed_list = []  # 解析結果を格納するリスト
+    clips = []  # 動画クリップを格納するリスト
+    time_stamps = []    # 画像のタイムスタンプを格納するリスト
+    images = [] # 画像のパスを格納するリスト
+    config = Config()  # 設定を初期化
+    current_time = 0.0  # 現在の動画時間を初期化
     
+    text_line = full_text.splitlines() # テキストを行単位で分割
     for line in text_line:
-        line = line.strip()
+        # 行の前後の空白を削除
+        line = line.strip() 
         if not line:
             continue
 
+        # コマンド行の処理
         if line.startswith('\\'):
             analyzed_list.append({'type': 'command', 'text': line})
 
             # 正規表現でコマンド名と引数を抽出
             match = re.match(r'\\(\w+)(?:\{(.*)\})?', line)
-            if match:
+            if match:  
                 command = match.group(1)
                 raw_arg = match.group(2) if match.group(2) else ""
                 print(f"コマンド名: {command}, 引数: {raw_arg}")
 
                 # 引数文字列を辞書に変換
-                kwargs = parse_kwargs(raw_arg)
+                kwargs = parse_kwargs(raw_arg,config)
 
                 # コマンド名で関数呼び出し
-                if command == 'section':
-                    if isinstance(kwargs, dict):
-                        clip = section(**kwargs,start_time=current_time).with_start(current_time)
+                if command == 'title':  # タイトルクリップの生成
+                    if isinstance(kwargs, dict):    # 辞書形式で引数が渡された場合
+                        clip = title(**kwargs).with_start(current_time)
                     else:
-                        clip = section(kwargs).with_start(current_time)
-                    clips.append(clip)
-                    current_time += clip.duration
+                        print("titleの引数が不正です。辞書形式で渡してください。")
+                    clips.append(clip)  # タイトルクリップを追加
+                    current_time += clip.duration   # 現在の動画時間を更新
                     
-                elif command == 'delay':
-                    current_time += 3  # 無音の長さを1秒と仮定
+                elif command == 'delay':    # 遅延時間の追加
+                    current_time += float(kwargs)
                     
-                elif command == 'setSubtitleScale':
+                elif command == 'setSubtitle':  # 字幕設定の更新
                     if isinstance(kwargs, dict):
-                        set_subtitle_scale(**kwargs)
+                        set_subtitle(**kwargs)
                     else:
-                        set_subtitle_scale(float(kwargs)) 
+                        print("setSubtitleScaleの引数が不正です。辞書形式で渡してください。")
                         
-                elif command == 'setTalkSpeed':
+                elif command == 'setTalkSpeed': # 話すスピードの設定
                     if isinstance(kwargs, dict):
                         set_talk_speed(**kwargs)
                     else:
-                        set_talk_speed(float(kwargs)) 
+                        set_talk_speed(float(kwargs),config) 
                 
-                elif command == 'begin':
+                elif command == 'begin':    # 環境の開始
                     match = re.match(r"\\begin\{(\w+)\}(?:\[(.*?)\])?", line)
-
                     if match:
                         env_name = match.group(1)  # {}の中身
                         arg = match.group(2)       # []の中身（なければ None）
-                    if env_name  == 'image':
-                        time_stamps.append(current_time)
-                        images.append(arg)
+                    if env_name  == 'image':    # 画像クリップの開始
+                        time_stamps.append(current_time)    #画像の開始時間を記録
+                        images.append(arg)  # 画像のパスを記録
                         
-                elif command == 'end':
+                elif command == 'end':  # 環境の終了
                     match = re.match(r"\\end\{(\w+)\}", line)
                     if match:
                         env_name = match.group(1)  # {}の中身
-                        if env_name == 'image':
-                            clip = image(current_time, time_stamps[-1], images[-1])
+                        if env_name == 'image': # 画像クリップの終了
+                            clip = image(current_time, time_stamps[-1], images[-1]) # 画像クリップを生成
                             clips.append(clip)
                             
-        else:
-            clip = make_subtitle_clip(line).with_start(current_time)
-            clips.append(clip)
-            current_time += clip.duration
-        
-        print(current_time)
+        else:   # テキスト行の処理
+            clip = make_subtitle_clip(line,config).with_start(current_time) # 字幕クリップの生成
+            clips.append(clip)  # 字幕クリップを追加
+            current_time += clip.duration   # 現在の動画時間を更新
     
     # クリップを結合
-    background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time).with_opacity(0)
-    final = CompositeVideoClip([background] + clips, size=(1920, 1080)).with_duration(current_time)
+    background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time).with_opacity(0)    # 背景クリップを生成
+    final = CompositeVideoClip([background] + clips, size=(1920, 1080)).with_duration(current_time) # すべてのクリップを合成
     return final
 
-def parse_kwargs(arg_str):
+# 引数文字列を辞書に変換する関数
+def parse_kwargs(arg_str,config):
     # 空なら空辞書
     if not arg_str:
         return {}
@@ -106,13 +100,10 @@ def parse_kwargs(arg_str):
         if '=' in part:
             key, value = part.split('=', 1)
             kwargs[key.strip()] = value.strip()
+    
+    # 辞書に設定を含める   
+    kwargs['config'] = config
     return kwargs
 
 
-def set_subtitle_scale(scale=1.0):
-    print(f"字幕のスケールを設定: {scale}")
-    # 実際の処理はここに実装
 
-def set_talk_speed(speed=1.0):
-    print(f"話すスピードを設定: {speed}")
-    # 実際の処理はここに実装
