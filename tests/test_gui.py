@@ -62,14 +62,19 @@ class Editor(tkinter.Frame):
         
         # 動画クリップの書き出し
         print("動画クリップの書き出しを開始します...")
-        clip = clip.resized((640, 360)).with_fps(2)  # 動画の解像度とフレームレートを設定
-        clip.preview(fps=2,audio_fps=11000,audio_buffersize=1000)  # プレビュー表示
+        clip = clip.with_fps(24)  # フレームレートを設定
+        preview_clip = clip.resized((640, 360)).with_fps(2)  # プレビュー動画の解像度とフレームレートを設定
+        #preview_clip.preview(fps=2,audio_fps=11000,audio_buffersize=1000)  # プレビュー表示
         clip.write_videofile(
             "output/output.mp4",
-            codec="libx264",  # ← GPUエンコード
+            codec="h264_nvenc",        # ← GPU対応コーデック
             audio_codec="aac",
-            threads=10,  # スレッド数も指定可能
-            bitrate="3M"
+            threads=8,
+            bitrate="5M",
+            ffmpeg_params=[
+                "-preset", "fast",     # 高速設定（slow～fastまで選べる）
+                "-rc", "vbr",          # 可変ビットレート（cbr固定も可）
+            ],
         )
     
     # ファイルを開く
