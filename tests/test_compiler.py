@@ -119,7 +119,7 @@ def parse_kwargs(arg_str,config):
             kwargs[key.strip()] = value.strip()
     
     # 辞書に設定を含める   
-    kwargs['config'] = config
+    kwargs['config'] = config 
     return kwargs
 
 
