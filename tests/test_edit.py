@@ -20,7 +20,7 @@ def image(current_time, start_time, path):
         print(f"画像クリップを生成: パス='{path}', 開始時間={start_time}, 終了時間={current_time}")
         return img_clip
     except Exception as e:
-        print(f"エラー:画像ファイルが読み込めません_{e}")
+        print(f"エラー:画像ファイルが読み込めません_{path}")
         return None # エラー時はNoneを返す
     
 #タイトルクリップを生成
@@ -48,7 +48,7 @@ def se(**kwargs):
         print(f"SEクリップを生成: パス='{path}', ボリューム={volume}")
         return se
     except Exception as e:
-        print(f"エラー:SEファイルが読み込めません_{e}")
+        print(f"エラー:SEファイルが読み込めません_{path}")
         return None     
 
 def bgm(current_time, start_time, kwargs):
@@ -62,7 +62,7 @@ def bgm(current_time, start_time, kwargs):
         print(f"BGMクリップを生成: パス='{path}', ボリューム={volume}, 開始時間={start_time}, 終了時間={current_time}")
         return bgm_clip
     except Exception as e:
-        print(f"エラー:BGMファイルが読み込めません_{e}")
+        print(f"エラー:BGMファイルが読み込めません_{path}")
         return None
 
 #字幕設定を更新
@@ -92,7 +92,7 @@ def set_talk(**kwargs):
     config = kwargs.get('config', Config())
     config.TALK_SPEED = float(kwargs.get('speed', config.TALK_SPEED))
     config.SILENCE_DURATION = float(kwargs.get('silence_duration', config.SILENCE_DURATION))
-    config.SPEAKERS[0] = int(kwargs.get('talker1',2))
-    config.SPEAKERS[1] = int(kwargs.get('talker2',3))
+    config.SPEAKERS[0] = int(kwargs.get('talker1',config.SPEAKERS[0]))
+    config.SPEAKERS[1] = int(kwargs.get('talker2',config.SPEAKERS[1]))
     print(f"話すスピードを更新: スピード={config.TALK_SPEED}, 無音時間={config.SILENCE_DURATION}, 話者1={config.SPEAKERS[0]}, 話者2={config.SPEAKERS[1]}")
     
