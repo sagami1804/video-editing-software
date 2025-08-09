@@ -23,48 +23,69 @@ class Editor(tkinter.Frame):
         self.file_menu.add_command(label="別名で保存", command=self.save_file_dialog)
         self.file_menu.add_command(label="開く", command=self.open_file_dialog)
         
-        # スクロール可能なテキストエリアの作成
-        self.text_entry = scrolledtext.ScrolledText(self.root, font=("Arial", 12), undo=True)
-        self.text_entry.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)  # スクロール可能なテキストエリア
-        
-        # ボタンの作成
-        self.button = tkinter.Button(self.root, text="実行", width=10, command=self.run_execution)
-        self.button.grid(row=0, column=1, sticky="e", padx=10, pady=10) 
+        # コードエディタ ラベル
+        self.text_entry_label = tkinter.Label(root, text="コードエディタ", anchor="w")
+        self.text_entry_label.grid(row=0, column=0, padx=10, pady=(7, 2), sticky="nw")
+
+        # コードエディタ本体
+        self.text_entry = scrolledtext.ScrolledText(self.root, font=("fonts/SourceHanCodeJP.ttf", 12), undo=True)
+        self.text_entry.grid(row=1, column=0, rowspan=2, sticky="nsew", padx=10, pady=(0, 10))
+
+        # 実行ログ ラベル
+        self.log_label = tkinter.Label(root, text="実行ログ", anchor="w")
+        self.log_label.grid(row=3, column=0, padx=10, pady=(7, 2), sticky="nw")
         
         # 実行ログ出力エリア
         self.log_output = scrolledtext.ScrolledText(self.root, font=("Consolas", 10), height=10, state="normal")
-        self.log_output.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=10, pady=(0, 10))
+        self.log_output.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=10, pady=(0, 10))
+        
+        # ボタンの作成
+        self.button_frame = tkinter.Frame(root,relief="solid", bd=1)
+        self.button_frame.grid(row=2, column=1, sticky="e", padx=10, pady=10) 
+        self.preview_button = tkinter.Button(self.button_frame, text="コンパイル", width=10, command=self.run_execution)
+        self.preview_button.grid(row=0, column=0, sticky="e", padx=10, pady=10) 
+        self.preview_button = tkinter.Button(self.button_frame, text="プレビュー", width=10, command=self.run_execution)
+        self.preview_button.grid(row=1, column=0, sticky="e", padx=10, pady=10) 
+        self.output_button = tkinter.Button(self.button_frame, text="出力", width=10, command=self.run_execution)
+        self.output_button.grid(row=2, column=0, sticky="e", padx=10, pady=10) 
 
         # 標準出力と標準エラー出力をリダイレクト
         sys.stdout = TextRedirector(self.log_output)
         sys.stderr = TextRedirector(self.log_output)
         
-        self.root.grid_rowconfigure(0, weight=3)  # テキスト入力
-        self.root.grid_rowconfigure(1, weight=1)  # ログ出力
-        self.root.grid_columnconfigure(0, weight=1)
-        
         # ウィンドウのリサイズに追従させる
-        self.root.grid_rowconfigure(0, weight=1)
-        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(1, weight=1)  # エディタ部分の行
+        self.root.grid_rowconfigure(3, weight=0)  # ログ出力の行（必要なら weight=1 にしても可）
+        self.root.grid_columnconfigure(0, weight=1)  # エディタ部分の列
+        self.root.grid_columnconfigure(1, weight=0)  # ボタン部分の列
     
+    def run_compile(self):
+        threading.Thread(target=self.execution, daemon=True).start()
+        
+    def run_preview(self):
+        threading.Thread(target=self.execution, daemon=True).start()
+        
     def run_execution(self):
         threading.Thread(target=self.execution, daemon=True).start()
         
+    def compile(self):
+        print("コンパイルを開始します")
+        clip = analyze_text(self.text_entry.get("1.0", tkinter.END))
+        print("コンパイルが正常に完了しました")
+        return clip
+        
+    def preview(self):
+        clip = compile()
+        print("プレビューを表示します(音ズレは仕様です)")
+        clip.preview(fps=2,audio_fps=11000,audio_buffersize=1000)  # プレビュー表示
+            
     # 実行ボタンがクリックされたときの処理
     def execution(self):
-        text_content = self.text_entry.get("1.0", tkinter.END)
-        print("実行ボタンがクリックされました。テキスト内容:")
-        print(text_content)
-        
-        # テキスト内容を解析して動画クリップを生成
-        print("テキスト内容を解析して動画クリップを生成します...")
-        clip = analyze_text(text_content)
-        
+        clip = compile()
+        clip = clip.with_fps(24)  # フレームレートを設定
+
         # 動画クリップの書き出し
         print("動画クリップの書き出しを開始します...")
-        clip = clip.with_fps(24)  # フレームレートを設定
-        preview_clip = clip.resized((640, 360)).with_fps(2)  # プレビュー動画の解像度とフレームレートを設定
-        #preview_clip.preview(fps=2,audio_fps=11000,audio_buffersize=1000)  # プレビュー表示
         clip.write_videofile(
             "output/output.mp4",
             codec="h264_nvenc",        # ← GPU対応コーデック
@@ -76,6 +97,7 @@ class Editor(tkinter.Frame):
                 "-rc", "vbr",          # 可変ビットレート（cbr固定も可）
             ],
         )
+        print("動画ファイルが出力されました")
     
     # ファイルを開く
     def open_file_dialog(self):
