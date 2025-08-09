@@ -112,6 +112,7 @@ def analyze_text(full_text, is_talk_mode):
                                 clips.append({"clip": clip, "z": int(z)})  # 画像クリップを追加
                             else:
                                 clip = image(current_time, images[-1]['start_time'], images[-1]['path'])  # 画像クリップを生成
+                                if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
                                 clips.append({"clip": clip, "z": int(images[-1].get('z',0))}) 
                             
                         elif env_name == 'bgm':  # BGMの終了

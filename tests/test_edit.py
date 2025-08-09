@@ -41,21 +41,29 @@ def title(**kwargs):
 def se(**kwargs):
     path = kwargs.get('path', 'default_se.wav')
     volume = float(kwargs.get('volume', 0.7))
-    se = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
-    background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(se.duration).with_opacity(0)
-    se = background.with_audio(se)      
-    print(f"SEクリップを生成: パス='{path}', ボリューム={volume}")
-    return se
+    try:
+        se = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
+        background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(se.duration).with_opacity(0)
+        se = background.with_audio(se) 
+        print(f"SEクリップを生成: パス='{path}', ボリューム={volume}")
+        return se
+    except Exception as e:
+        print(f"エラー:SEファイルが読み込めません_{e}")
+        return None     
 
 def bgm(current_time, start_time, kwargs):
     path = kwargs.get('path', 'default_bgm.mp3')
     volume = float(kwargs.get('volume', 0.2))
-    bgm_clip = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
-    bgm_loop = bgm_clip.with_effects([afx.AudioLoop(duration=current_time - start_time)])
-    background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(bgm_loop.duration).with_opacity(0)
-    bgm_clip = background.with_audio(bgm_loop).with_start(start_time)
-    print(f"BGMクリップを生成: パス='{path}', ボリューム={volume}, 開始時間={start_time}, 終了時間={current_time}")
-    return bgm_clip
+    try:
+        bgm_clip = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
+        bgm_loop = bgm_clip.with_effects([afx.AudioLoop(duration=current_time - start_time)])
+        background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(bgm_loop.duration).with_opacity(0)
+        bgm_clip = background.with_audio(bgm_loop).with_start(start_time)
+        print(f"BGMクリップを生成: パス='{path}', ボリューム={volume}, 開始時間={start_time}, 終了時間={current_time}")
+        return bgm_clip
+    except Exception as e:
+        print(f"エラー:BGMファイルが読み込めません_{e}")
+        return None
 
 #字幕設定を更新
 def set_subtitle(**kwargs):
