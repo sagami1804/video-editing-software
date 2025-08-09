@@ -4,183 +4,186 @@ from test_subtitle import *
 from moviepy import *
 from __init__ import *
 
+# ------------------------------------------------------------
+# テキスト解析・動画クリップ生成
+# ------------------------------------------------------------
 def analyze_text(full_text, is_talk_mode, is_green_mode):
-    analyzed_list = []  # 解析結果を格納するリスト
-    clips = []  # 動画クリップを格納するリスト
-    images = [] # 画像のパスを格納するリスト[{path, z-index, tag, current_time},{path, z-index, tag, current_time}, ...]
-    bgm_time_stamps = []  # BGMのタイムスタンプを格納するリスト
-    bgms = []  # BGMのパスを格納するリスト
-    config = Config()  # 設定を初期化
-    current_time = 0.0  # 現在の動画時間を初期化
+    clips, images, bgm_time_stamps, bgms = [], [], [], []
+    config = Config()
+    current_time = 0.0
     talker = 0
 
-    text_line = full_text.splitlines() # テキストを行単位で分割
-    for line in text_line:
-        # 行の前後の空白を削除
-        line = line.strip() 
+    for line in map(str.strip, full_text.splitlines()):
         if not line:
+            # 空行で話者を切り替え（トークモード時のみ）
             if is_talk_mode:
-                talker = (talker+1) % 2
+                talker = (talker + 1) % 2
             continue
 
-        # コマンド行の処理
         if line.startswith('\\'):
-            analyzed_list.append({'type': 'command', 'text': line})
+            result = handle_command_line(
+                line, config, current_time, talker, clips, images, bgm_time_stamps, bgms
+            )
+            if result is None:
+                return None
+            current_time, talker = result
+        else:
+            # 通常のテキスト行（字幕クリップ）
+            clip = make_subtitle_clip(line, talker, config).with_start(current_time)
+            if clip is None:
+                return None
+            clips.append({"clip": clip, "z": 5})
+            current_time += clip.duration
 
-            # 正規表現でコマンド名と引数を抽出
-            match = re.match(r'\\(\w+)(?:\{(.*)\})?', line)
-            if match:  
-                command = match.group(1)
-                raw_arg = match.group(2) if match.group(2) else ""
-                print(f"コマンド名: {command}, 引数: {raw_arg}")
+    # 背景設定
+    background_color = config.BACKGROUND_COLOR if is_green_mode else (0, 255, 0)
+    background_opacity = 1 if is_green_mode else 0
+    background = ColorClip(size=(1920, 1080), color=background_color)\
+        .with_duration(current_time)\
+        .with_opacity(background_opacity)
 
-                # 引数文字列を辞書に変換
-                kwargs = parse_kwargs(raw_arg,config)
-
-                # コマンド名で関数呼び出し
-                if command == 'title':  # タイトルクリップの生成
-                    if isinstance(kwargs, dict):    # 辞書形式で引数が渡された場合
-                        clip = title(**kwargs).with_start(current_time)
-                        if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
-                    else:
-                        print(f"エラー:titleの引数が不正です。辞書形式で渡してください。_{line}")
-                        return None
-                    clips.append({"clip": clip, "z": 1})  # タイトルクリップを追加
-                    current_time += clip.duration   # 現在の動画時間を更新
-
-                # SEクリップの生成
-                elif command == 'se':
-                    if isinstance(kwargs, dict):
-                        clip = se(**kwargs).with_start(current_time)  # SEクリップの生成
-                        if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
-                        clips.append({"clip": clip, "z": 0})  # SEクリップを追加
-                    else:
-                        print(f"エラー:seの引数が不正です。辞書形式で渡してください。_{line}")
-                    
-                elif command == 'delay':    # 遅延時間の追加
-                    current_time += float(kwargs['arg'])
-                
-                elif command == 'setBG':    # 遅延時間の追加
-                    set_background(kwargs['arg'], config)
-                    
-                elif command == 'setSubtitle':  # 字幕設定の更新
-                    if isinstance(kwargs, dict):
-                        set_subtitle(**kwargs)
-                    else:
-                        print(f"エラー:setSubtitleScaleの引数が不正です。辞書形式で渡してください。_{line}")
-
-                elif command == 'setTitle':  # 字幕設定の更新
-                    if isinstance(kwargs, dict):
-                        set_title(**kwargs)
-                    else:
-                        print(f"エラー:setTitleScaleの引数が不正です。辞書形式で渡してください。_{line}")
-                        
-                elif command == 'setTalk': # 話すスピードの設定
-                    if isinstance(kwargs, dict):
-                        set_talk(**kwargs)
-                    else:
-                        print(f"エラー:setTalkSpeedの引数が不正です。辞書形式で渡してください。_{line}")
-                
-                elif command == 'begin':    # 環境の開始
-                    match = re.match(r"\\begin\{(\w+)\}(?:\[(.*?)\])?", line)
-                    if match:
-                        env_name = match.group(1)  # {}の中身
-                        arg = match.group(2)       # []の中身（なければ None）
-                        if env_name  == 'image':    # 画像クリップの開始
-                            new_image = parse_kwargs(arg,config)
-                            new_image['start_time'] = current_time  # 開始時間を記録
-                            images.append(new_image)  # 画像のパスを記録
-                        elif env_name == 'bgm':
-                            bgm_time_stamps.append(current_time)  # BGMの開始時間を記録
-                            bgms.append(parse_kwargs(arg,config))  # BGMのオプションを記録
-                        else:
-                            print(f"エラー：不明なコマンドです_{line}")
-                            return None # エラー時はNoneを返す
-                    else:
-                        print(f"エラー：不明なコマンドです_{line}")
-                        return None # エラー時はNoneを返す
-                        
-                elif command == 'end':  # 環境の終了
-                    match = re.match(r"\\end\{(\w+)\}(?:\[(.*?)\])?", line)
-                    if match:
-                        env_name = match.group(1)  # {}の中身
-                        arg = match.group(2)       # []の中身（なければ None）
-                        if env_name == 'image':  # 画像クリップの終了
-                            if arg:  # 引数がある場合
-                                clips_array = serch_image(arg, images, current_time)  # 画像のパスを検索
-                                clip = clips_array[0]  # 画像クリップを取得
-                                if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
-                                z = clips_array[1]  # z-indexを取得
-                                images.pop(clips_array[2])  # 使用済みの画像を削除
-                                clips.append({"clip": clip, "z": int(z)})  # 画像クリップを追加
-                            else:
-                                clip = image(current_time, images[-1]['start_time'], images[-1]['path'])  # 画像クリップを生成
-                                if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
-                                clips.append({"clip": clip, "z": int(images[-1].get('z',0))}) 
-                            
-                        elif env_name == 'bgm':  # BGMの終了
-                            clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])  # BGMクリップを生成
-                            if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
-                            clips.append({"clip": clip, "z": 0}) 
-                        else:
-                            print(f"エラー：不明なコマンドです_{line}")
-                            return None  # エラー時はNoneを返す
-                    else:
-                        print(f"エラー：不明なコマンドです_{line}")
-                        return None  # エラー時はNoneを返す
-                else:
-                    print(f"エラー：不明なコマンドです_{line}")
-                    return None  # エラー時はNoneを返す
-            else:
-                print(f"エラー：不明なコマンドです_{line}")
-                return None  # エラー時はNoneを返す
-                            
-        else:   # テキスト行の処理
-            clip = make_subtitle_clip(line, talker, config).with_start(current_time) # 字幕クリップの生成
-            if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
-            clips.append({"clip": clip, "z": 5})  # 字幕クリップを追加
-            current_time += clip.duration   # 現在の動画時間を更新
-    
-    
-    # クリップを結合
-    clips = [item["clip"] for item in sorted(clips, key=lambda x: x["z"])]  # z値でソート
-    if is_green_mode:
-        print("グリーンバックモードが有効です")
-        background = ColorClip(size=(1920, 1080), color=config.BACKGROUND_COLOR).with_duration(current_time)   # 背景クリップを生成
-    else:
-        background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time).with_opacity(0)    # 背景クリップを生成
-    final = CompositeVideoClip([background] + clips, size=(1920, 1080)).with_duration(current_time) # すべてのクリップを合成
+    # z-index順にソートして合成
+    sorted_clips = [item["clip"] for item in sorted(clips, key=lambda x: x["z"])]
+    final = CompositeVideoClip([background] + sorted_clips, size=(1920, 1080))\
+        .with_duration(current_time)
     return final
 
-# 引数文字列を辞書に変換する関数
-def parse_kwargs(arg_str,config):
-    # 空なら空辞書
+# ------------------------------------------------------------
+# コマンド行の処理
+# ------------------------------------------------------------
+def handle_command_line(line, config, current_time, talker, clips, images, bgm_time_stamps, bgms):
+    match = re.match(r'\\(\w+)(?:\{(.*)\})?', line)
+    if not match:
+        print(f"エラー：不明なコマンドです_{line}")
+        return None
+
+    command, raw_arg = match.group(1), match.group(2) or ""
+    kwargs = parse_kwargs(raw_arg, config)
+
+    if command == 'title':
+        return handle_clip_command(title, kwargs, current_time, clips, z=1, talker=talker)
+
+    elif command == 'se':
+        return handle_clip_command(se, kwargs, current_time, clips, z=0, talker=talker)
+
+    elif command == 'delay':
+        current_time += float(kwargs['arg'])
+
+    elif command == 'setBG':
+        set_background(kwargs['arg'], config)
+
+    elif command in ('setSubtitle', 'setTitle', 'setTalk'):
+        handler_map = {
+            'setSubtitle': set_subtitle,
+            'setTitle': set_title,
+            'setTalk': set_talk
+        }
+        if not isinstance(kwargs, dict):
+            print(f"エラー:{command}の引数が不正です_{line}")
+            return None
+        handler_map[command](**kwargs)
+
+    elif command == 'begin':
+        return handle_begin_env(line, config, current_time, images, bgm_time_stamps, bgms, talker)
+
+    elif command == 'end':
+        return handle_end_env(line, current_time, images, clips, bgm_time_stamps, bgms, talker)
+
+    else:
+        print(f"エラー：不明なコマンドです_{line}")
+        return None
+
+    return current_time, talker
+
+# ------------------------------------------------------------
+# タイトルやSEのクリップ生成
+# ------------------------------------------------------------
+def handle_clip_command(func, kwargs, current_time, clips, z, talker):
+    if not isinstance(kwargs, dict):
+        print("エラー: 引数が不正です。辞書形式で渡してください。")
+        return None
+    clip = func(**kwargs).with_start(current_time)
+    if clip is None:
+        return None
+    clips.append({"clip": clip, "z": z})
+    return current_time + clip.duration, talker  # talker を維持して返す
+
+# ------------------------------------------------------------
+# \begin 環境の処理
+# ------------------------------------------------------------
+def handle_begin_env(line, config, current_time, images, bgm_time_stamps, bgms, talker):
+    match = re.match(r"\\begin\{(\w+)\}(?:\[(.*?)\])?", line)
+    if not match:
+        print(f"エラー：不明なコマンドです_{line}")
+        return None
+    env_name, arg = match.group(1), match.group(2)
+    if env_name == 'image':
+        new_image = parse_kwargs(arg, config)
+        new_image['start_time'] = current_time
+        images.append(new_image)
+    elif env_name == 'bgm':
+        bgm_time_stamps.append(current_time)
+        bgms.append(parse_kwargs(arg, config))
+    else:
+        print(f"エラー：不明な環境です_{line}")
+        return None
+    return current_time, talker
+
+# ------------------------------------------------------------
+# \end 環境の処理
+# ------------------------------------------------------------
+def handle_end_env(line, current_time, images, clips, bgm_time_stamps, bgms, talker):
+    match = re.match(r"\\end\{(\w+)\}(?:\[(.*?)\])?", line)
+    if not match:
+        print(f"エラー：不明なコマンドです_{line}")
+        return None
+
+    env_name, arg = match.group(1), match.group(2)
+    if env_name == 'image':
+        if arg:
+            clip, z, idx = serch_image(arg, images, current_time)
+            if clip is None:
+                return None
+            images.pop(idx)
+            clips.append({"clip": clip, "z": int(z)})
+        else:
+            last_image = images[-1]
+            clip = image(current_time, last_image['start_time'], last_image['path'])
+            if clip is None:
+                return None
+            clips.append({"clip": clip, "z": int(last_image.get('z', 0))})
+
+    elif env_name == 'bgm':
+        clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])
+        if clip is None:
+            return None
+        clips.append({"clip": clip, "z": 0})
+
+    else:
+        print(f"エラー：不明な環境です_{line}")
+        return None
+
+    return current_time, talker
+
+# ------------------------------------------------------------
+# 引数文字列を辞書に変換
+# ------------------------------------------------------------
+def parse_kwargs(arg_str, config):
     if not arg_str:
         return {}
-
-    kwargs = {}
-    # キー=値がない → 単一引数とみなす（位置引数として返す）
     if '=' not in arg_str:
-        kwargs['arg'] = arg_str.strip()
-        return kwargs
-    
-
-    # キー=値のときは辞書にする
-    for part in arg_str.split(','):
-        if '=' in part:
-            key, value = part.split('=', 1)
-            kwargs[key.strip()] = value.strip()
-    
-    # 辞書に設定を含める   
-    kwargs['config'] = config 
+        return {'arg': arg_str.strip()}
+    kwargs = {k.strip(): v.strip() for k, v in (part.split('=', 1) for part in arg_str.split(','))}
+    kwargs['config'] = config
     return kwargs
 
-
+# ------------------------------------------------------------
+# 指定タグの画像を検索してクリップ生成
+# ------------------------------------------------------------
 def serch_image(arg, images, current_time):
     tag = arg.split('=', 1)[1]
     for index, img in enumerate(images):
-        if 'tag' in img and img['tag'] == tag:
+        if img.get('tag') == tag:
             clip = image(current_time, img['start_time'], img['path'])
-            z = img.get('z', 0)  # z-indexを取得
-            return clip, z, index
+            return clip, img.get('z', 0), index
     return None, 0, -1

@@ -1,6 +1,4 @@
-from test_gui import *
-from test_subtitle import *
-import tkinter
+from test_gui import Editor
 import os
 
 def main():
@@ -10,12 +8,11 @@ def main():
     os.chdir(parent_dir)
     
     # GUIアプリケーションの初期化
-    root = tkinter.Tk()
-    app = Editor(root)
+    app = Editor()
     print("Starting GUI application...")
     
     #メインループ
-    root.mainloop()
+    app.mainloop()
     
 if __name__ == "__main__":
     main()
