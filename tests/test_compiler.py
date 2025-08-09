@@ -4,7 +4,7 @@ from test_subtitle import *
 from moviepy import *
 from __init__ import *
 
-def analyze_text(full_text):
+def analyze_text(full_text, is_talk_mode):
     analyzed_list = []  # 解析結果を格納するリスト
     clips = []  # 動画クリップを格納するリスト
     image_time_stamps = []    # 画像のタイムスタンプを格納するリスト
@@ -13,12 +13,15 @@ def analyze_text(full_text):
     bgms = []  # BGMのパスを格納するリスト
     config = Config()  # 設定を初期化
     current_time = 0.0  # 現在の動画時間を初期化
+    talker = 0
     
     text_line = full_text.splitlines() # テキストを行単位で分割
     for line in text_line:
         # 行の前後の空白を削除
         line = line.strip() 
         if not line:
+            if is_talk_mode:
+                talker = (talker+1) % 2
             continue
 
         # コマンド行の処理
@@ -91,7 +94,7 @@ def analyze_text(full_text):
                             clips.append({"clip": clip, "z": 0}) 
                             
         else:   # テキスト行の処理
-            clip = make_subtitle_clip(line,config).with_start(current_time) # 字幕クリップの生成
+            clip = make_subtitle_clip(line, talker, config).with_start(current_time) # 字幕クリップの生成
             clips.append({"clip": clip, "z": 2})  # 字幕クリップを追加
             current_time += clip.duration   # 現在の動画時間を更新
     

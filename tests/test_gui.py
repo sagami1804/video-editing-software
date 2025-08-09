@@ -39,12 +39,18 @@ class Editor(tkinter.Frame):
         self.log_output = scrolledtext.ScrolledText(self.root, font=("Consolas", 10), height=10, state="normal")
         self.log_output.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=10, pady=(0, 10))
         
+        # 会話モードのチェックボックス
+        self.is_talk_mode = tkinter.BooleanVar()
+
+        self.talk_mode_checkbutton = tkinter.Checkbutton(root, text="会話モード", variable=self.is_talk_mode)
+        self.talk_mode_checkbutton.grid(row=1, column=1, sticky="e", padx=(0,30), pady=10)
+        
         # ボタンの作成
         self.button_frame = tkinter.Frame(root,relief="solid", bd=1)
         self.button_frame.grid(row=2, column=1, sticky="e", padx=10, pady=10) 
-        self.preview_button = tkinter.Button(self.button_frame, text="コンパイル", width=10, command=self.run_execution)
+        self.preview_button = tkinter.Button(self.button_frame, text="コンパイル", width=10, command=self.run_compile)
         self.preview_button.grid(row=0, column=0, sticky="e", padx=10, pady=10) 
-        self.preview_button = tkinter.Button(self.button_frame, text="プレビュー", width=10, command=self.run_execution)
+        self.preview_button = tkinter.Button(self.button_frame, text="プレビュー", width=10, command=self.run_preview)
         self.preview_button.grid(row=1, column=0, sticky="e", padx=10, pady=10) 
         self.output_button = tkinter.Button(self.button_frame, text="出力", width=10, command=self.run_execution)
         self.output_button.grid(row=2, column=0, sticky="e", padx=10, pady=10) 
@@ -60,17 +66,17 @@ class Editor(tkinter.Frame):
         self.root.grid_columnconfigure(1, weight=0)  # ボタン部分の列
     
     def run_compile(self):
-        threading.Thread(target=self.execution, daemon=True).start()
+        threading.Thread(target=self.compile_clip, daemon=True).start()
         
     def run_preview(self):
-        threading.Thread(target=self.execution, daemon=True).start()
+        threading.Thread(target=self.preview, daemon=True).start()
         
     def run_execution(self):
         threading.Thread(target=self.execution, daemon=True).start()
         
     def compile_clip(self):
         print("コンパイルを開始します")
-        clip = analyze_text(self.text_entry.get("1.0", tkinter.END))
+        clip = analyze_text(self.text_entry.get("1.0", tkinter.END), self.is_talk_mode)
         print("コンパイルが正常に完了しました")
         return clip
         
