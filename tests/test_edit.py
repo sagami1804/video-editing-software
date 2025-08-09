@@ -31,8 +31,10 @@ def title(**kwargs):
     try:
         clip = TextClip(text=text, font_size=config.TITLE_FONT_SIZE, color=config.TITLE_FONT_COLOR, stroke_color=config.TITLE_FONT_STROKE_COLOR, stroke_width=config.TITLE_FONT_STROKE_WIDTH, font=config.TITLE_FONT, size=(1700, 600)).with_duration(duration)
         return clip.with_position(('center', 'center'))
-    print(f"タイトルクリップを生成: テキスト='{text}', フォントサイズ={config.TITLE_FONT_SIZE}, 色={config.TITLE_FONT_COLOR}")
-    return clip
+    except Exception as e:
+        print(f"タイトルクリップの生成に失敗: {e}")
+        return None
+
 
 #SEクリップを生成
 def se(**kwargs):

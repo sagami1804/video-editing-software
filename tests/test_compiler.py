@@ -109,12 +109,16 @@ def analyze_text(full_text, is_talk_mode):
                             clips.append({"clip": clip, "z": 0}) 
                         else:
                             print(f"エラー：不明なコマンドです_{line}")
+                            return None  # エラー時はNoneを返す
                     else:
                         print(f"エラー：不明なコマンドです_{line}")
+                        return None  # エラー時はNoneを返す
                 else:
                     print(f"エラー：不明なコマンドです_{line}")
+                    return None  # エラー時はNoneを返す
             else:
                 print(f"エラー：不明なコマンドです_{line}")
+                return None  # エラー時はNoneを返す
                             
         else:   # テキスト行の処理
             clip = make_subtitle_clip(line, talker, config).with_start(current_time) # 字幕クリップの生成

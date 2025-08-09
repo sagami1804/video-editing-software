@@ -145,6 +145,9 @@ class Editor(ctk.CTk):
     def compile_clip(self):
         print("コンパイルを開始します")
         clip = analyze_text(self.text_entry.get("1.0", "end"), self.is_talk_mode.get())
+        if clip is None:
+            print("コンパイルが失敗しました")
+
         print("コンパイルが正常に完了しました")
         return clip
 
