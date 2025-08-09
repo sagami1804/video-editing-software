@@ -13,7 +13,7 @@ def make_subtitle_clip(text, talker, config):
     
     
     # テキストクリップを作成
-    subtitle_clip = TextClip(text=text, font=config.SUBTITLE_FONT, font_size=config.SUBTITLE_FONT_SIZE, color=config.SUBTITLE_FONT_COLOR[talker], stroke_color=config.SUBTITLE_FONT_STROKE_COLOR[talker], stroke_width=config.SUBTITLE_FONT_STROKE_WIDTH, size=(1700, 100), method='caption')
+    subtitle_clip = TextClip(text=text, font=config.SUBTITLE_FONT, font_size=config.SUBTITLE_FONT_SIZE, color=config.SUBTITLE_FONT_COLOR[talker], stroke_color=config.SUBTITLE_FONT_STROKE_COLOR[talker], stroke_width=config.SUBTITLE_FONT_STROKE_WIDTH, size=(1700, 300), method='caption')
     subtitle_clip = subtitle_clip.with_position(('center', 'bottom')).with_duration(clip_duration)
     video_clip = subtitle_clip.with_audio(voice_clip)
     
