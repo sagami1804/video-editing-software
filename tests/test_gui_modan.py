@@ -3,7 +3,6 @@ from tkinter import filedialog, messagebox
 from test_compiler import *
 import threading
 import sys
-import ctypes
 from multiprocessing import Process
 import signal
 import os
@@ -161,6 +160,7 @@ class Editor(ctk.CTk):
             bitrate="5M",
             ffmpeg_params=["-preset", "fast", "-rc", "vbr"],
         )
+        messagebox.showinfo('メッセージ', '動画ファイルが出力されました')
         print("動画ファイルが出力されました")
 
     def open_file_dialog(self):
