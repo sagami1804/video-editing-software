@@ -29,6 +29,9 @@
 | ---- | ---- | ---- | ---- |
 | size | x | 70 | フォントのサイズを指定する |
 | color | x | white | フォントの色を指定する |
+| stroke_color| x | black | 文字の縁の色を指定する|
+| color2 | x | white | 2人目のフォントの色を指定する |
+| stroke_color2| x | black | 2人目の文字の縁の色を指定する|
 
 - 字幕の見た目を設定します。
 - 例：  
@@ -37,12 +40,26 @@
   ```
 
 #### `\setTitle{size=, color=, stroke_color=, stroke_width=}`
+| option | 必須 | 初期値 | 説明 |
+| ---- | ---- | ---- | ---- |
+| size | x | 70 | フォントのサイズを指定する |
+| color | x | white | フォントの色を指定する |
+| stroke_color| x | black | 文字の縁の色を指定する|
 
 - タイトルのスタイルを設定します。
 
 #### `\setTalk{speed=, silence_duration=, talker1=, talker2=}`
-
+| option | 必須 | 初期値 | 説明 |
+| ---- | ---- | ---- | ---- |
+|speed|x|1.2|音声スピードを指定する|
+|silence_duration|x|0.5|音量を指定する|
+|talker1|x|2|メインボイスキャラクターを指定する|
+|talker2|x|3|サブボイスキャラクターを指定する|
 - 合成音声（VoiceVox）の設定を行います。
+
+- キャラクターボイスの取得するサンプルとID一覧はこちらを参照 　
+
+https://puarts.com/?pid=1830
 
 > ※ これらの `\set~` コマンドは途中で再設定することも可能です。
 
