@@ -15,26 +15,6 @@ def image(current_time, start_time, path):
                              width=1920, height=1080)
     img_clip = img_clip.with_position(('center', 'center'))
     return img_clip
-
-#期間中の背景画像の生成
-def image_overlay(**kwargs):
-
-    path = kwargs.get('path')
-    duration = float(kwargs.get('duration', 3))
-    position = kwargs.get('position', 'center') # 位置のデフォルトは中央
-
-    if not path:
-        print("エラー: インラインのimageコマンドにはpathが必要です。")
-        return None
-    
-    try:
-        # 画像を読み込み、長さと位置を設定
-        clip = ImageClip(f"images/{path}").with_duration(duration).with_position(position)
-        return clip
-    except Exception as e:
-        print(f"エラー: 画像 '{path}' の読み込みに失敗しました。 {e}")
-        return None
-    
     
 #タイトルクリップを生成
 def title(**kwargs):

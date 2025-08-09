@@ -7,8 +7,7 @@ from __init__ import *
 def analyze_text(full_text, is_talk_mode):
     analyzed_list = []  # 解析結果を格納するリスト
     clips = []  # 動画クリップを格納するリスト
-    image_time_stamps = []    # 画像のタイムスタンプを格納するリスト
-    images = [] # 画像のパスを格納するリスト[{path, z-index, tag, current_time},{path, z-index, tag, current_time}]
+    images = [] # 画像のパスを格納するリスト[{path, z-index, tag, current_time},{path, z-index, tag, current_time}, ...]
     bgm_time_stamps = []  # BGMのタイムスタンプを格納するリスト
     bgms = []  # BGMのパスを格納するリスト
     config = Config()  # 設定を初期化
