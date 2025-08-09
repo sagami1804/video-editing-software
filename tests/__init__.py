@@ -19,6 +19,7 @@ class Config:
     TALK_SPEED = 1.2
     SILENCE_DURATION = 0.5  # 音声合成の間の無音時間（秒）
     SPEAKERS = [2,3]
+    BACKGROUND_COLOR = (0,255,0)  # グリーンバックモードの背景色
 
 class TextRedirector:
     def __init__(self, text_widget):

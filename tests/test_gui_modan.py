@@ -19,8 +19,8 @@ class TextRedirector:
     def flush(self):
         pass
 
-def preview_worker(text, talk_mode):
-    clip = analyze_text(text, talk_mode).resized((896, 504)).with_fps(3)
+def preview_worker(text, talk_mode, is_green_mode):
+    clip = analyze_text(text, talk_mode, is_green_mode).resized((896, 504)).with_fps(3)
     if clip is None:
         return
     try:
@@ -58,7 +58,9 @@ class Editor(ctk.CTk):
         ctk.CTkButton(top_frame, text="別名保存", font=font_main, command=self.save_file_dialog).pack(side="left", padx=5)
 
         self.is_talk_mode = ctk.BooleanVar(value=False)
+        self.is_green_mode = ctk.BooleanVar(value=False)
         ctk.CTkCheckBox(top_frame, text="会話モード", variable=self.is_talk_mode).pack(side="right", padx=10)
+        ctk.CTkCheckBox(top_frame, text="グリーンバックモード", variable=self.is_green_mode).pack(side="right", padx=10)
 
         # 中央エリアのフレーム（角を鋭角に）
         center_frame = ctk.CTkFrame(self, corner_radius=0)
@@ -114,6 +116,7 @@ class Editor(ctk.CTk):
 
         text_value = self.text_entry.get("1.0", "end")
         talk_mode_value = self.is_talk_mode.get()
+        green_mode_value = self.is_green_mode.get()
 
         # multiprocessing の起動前に既にプロセスが残っている場合はクリーンアップ
         if getattr(self, "preview_proc", None):
@@ -124,7 +127,7 @@ class Editor(ctk.CTk):
 
         # 子プロセスをトップレベル関数で起動（引数は文字列と bool のみ）
         print("プレビューを開始しています...(音ズレは仕様です)")
-        self.preview_proc = Process(target=preview_worker, args=(text_value, talk_mode_value))
+        self.preview_proc = Process(target=preview_worker, args=(text_value, talk_mode_value, green_mode_value))
         self.preview_proc.start()
     
     def stop_preview(self):
@@ -146,7 +149,7 @@ class Editor(ctk.CTk):
 
     def compile_clip(self):
         print("コンパイルを開始します")
-        clip = analyze_text(self.text_entry.get("1.0", "end"), self.is_talk_mode.get())
+        clip = analyze_text(self.text_entry.get("1.0", "end"), self.is_talk_mode.get(), self.is_green_mode.get())
         if clip is None:
             print("コンパイルが失敗しました")
             return None

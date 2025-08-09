@@ -2,6 +2,7 @@ import re
 from moviepy import *
 from __init__ import *
 import os
+import ast
 
 #画像クリップを生成
 def image(current_time, start_time, path):
@@ -97,4 +98,8 @@ def set_talk(**kwargs):
     config.SPEAKERS[0] = int(kwargs.get('talker1',config.SPEAKERS[0]))
     config.SPEAKERS[1] = int(kwargs.get('talker2',config.SPEAKERS[1]))
     print(f"話すスピードを更新: スピード={config.TALK_SPEED}, 無音時間={config.SILENCE_DURATION}, 話者1={config.SPEAKERS[0]}, 話者2={config.SPEAKERS[1]}")
+
+def set_background(color, config):
+    config.BACKGROUND_COLOR = ast.literal_eval(color)
+    print(f"背景色を更新: 色={config.BACKGROUND_COLOR}")
     
