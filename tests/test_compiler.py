@@ -104,7 +104,7 @@ def analyze_text(full_text, is_talk_mode):
                             
         else:   # テキスト行の処理
             clip = make_subtitle_clip(line, talker, config).with_start(current_time) # 字幕クリップの生成
-            clips.append({"clip": clip, "z": 2})  # 字幕クリップを追加
+            clips.append({"clip": clip, "z": 5})  # 字幕クリップを追加
             current_time += clip.duration   # 現在の動画時間を更新
     
     # クリップを結合
