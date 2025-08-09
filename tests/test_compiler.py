@@ -87,8 +87,6 @@ def analyze_text(full_text, is_talk_mode):
                     elif env_name == 'bgm':
                         bgm_time_stamps.append(current_time)  # BGMの開始時間を記録
                         bgms.append(parse_kwargs(arg,config))  # BGMのオプションを記録
-                    else:
-                        print("エラー：不明なコマンドです")
                         
                 elif command == 'end':  # 環境の終了
                     match = re.match(r"\\end\{(\w+)\}(?:\[(.*?)\])?", line)
@@ -110,13 +108,13 @@ def analyze_text(full_text, is_talk_mode):
                             clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])  # BGMクリップを生成
                             clips.append({"clip": clip, "z": 0}) 
                         else:
-                            print("エラー：不明なコマンドです")
+                            print(f"エラー：不明なコマンドです_{line}")
                     else:
-                        print("エラー：不明なコマンドです")
+                        print(f"エラー：不明なコマンドです_{line}")
                 else:
-                    print("エラー：不明なコマンドです")
+                    print(f"エラー：不明なコマンドです_{line}")
             else:
-                print("エラー：不明なコマンドです")
+                print(f"エラー：不明なコマンドです_{line}")
                             
         else:   # テキスト行の処理
             clip = make_subtitle_clip(line, talker, config).with_start(current_time) # 字幕クリップの生成

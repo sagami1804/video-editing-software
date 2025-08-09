@@ -20,7 +20,7 @@ class TextRedirector:
         pass
 
 def preview_worker(text, talk_mode):
-    clip = analyze_text(text, talk_mode).resized((1280, 720)).with_fps(3)
+    clip = analyze_text(text, talk_mode).resized((896, 504)).with_fps(3)
     try:
         clip.preview(fps=3, audio_fps=11100)
     except OSError:
