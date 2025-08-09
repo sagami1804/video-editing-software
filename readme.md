@@ -25,10 +25,10 @@
 
 #### `\setSubtitle{size=, color=, stroke_color=, stroke_width=, color2=, stroke_color2=}`
 
-| TH | TH |
-| ---- | ---- |
-| TD | TD |
-| TD | TD |
+| option | 必須 | 初期値 | 説明 |
+| ---- | ---- | ---- | ---- |
+| size | [ ] | 70 | フォントのサイズを指定する |
+| color | [x] | white | フォントの色を指定する |
 
 - 字幕の見た目を設定します。
 - 例：  
