@@ -51,12 +51,12 @@
   \title{text=はじめに, duration=3}
   ```
 
-#### `\se{path}`
+#### `\se{path=}`
 
 - SE（効果音）を挿入します。
 - 例：  
   ```text
-  \se{enter.wav}
+  \se{path=enter.wav}
   ```
 
 #### `\delay{duration}`
@@ -109,7 +109,7 @@
 
 \title{text=使い方, duration=2}
 
-\se{start.wav}
+\se{path=start.wav}
 
 次に、画像を表示してみましょう。
 

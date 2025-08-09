@@ -95,9 +95,12 @@ class Editor(ctk.CTk):
         return clip
 
     def preview(self):
-        clip = self.compile_clip().resized((1280, 720)).with_fps(2)
         print("プレビューを表示します(音ズレは仕様です)")
-        clip.preview(fps=2, audio_fps=11000, audio_buffersize=1000)
+        try:
+            clip = self.compile_clip().resized((1280, 720)).with_fps(24)
+            clip.preview(fps=5, audio_fps=11100)
+        except OSError:
+            print("error")
 
     def execution(self):
         clip = self.compile_clip()
