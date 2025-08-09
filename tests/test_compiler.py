@@ -4,7 +4,7 @@ from test_subtitle import *
 from moviepy import *
 from __init__ import *
 
-def analyze_text(full_text, is_talk_mode):
+def analyze_text(full_text, is_talk_mode, is_green_mode):
     analyzed_list = []  # 解析結果を格納するリスト
     clips = []  # 動画クリップを格納するリスト
     images = [] # 画像のパスを格納するリスト[{path, z-index, tag, current_time},{path, z-index, tag, current_time}, ...]
@@ -59,6 +59,9 @@ def analyze_text(full_text, is_talk_mode):
                     
                 elif command == 'delay':    # 遅延時間の追加
                     current_time += float(kwargs['arg'])
+                
+                elif command == 'setBG':    # 遅延時間の追加
+                    set_background(kwargs['arg'], config)
                     
                 elif command == 'setSubtitle':  # 字幕設定の更新
                     if isinstance(kwargs, dict):
@@ -141,7 +144,11 @@ def analyze_text(full_text, is_talk_mode):
     
     # クリップを結合
     clips = [item["clip"] for item in sorted(clips, key=lambda x: x["z"])]  # z値でソート
-    background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time).with_opacity(0)    # 背景クリップを生成
+    if is_green_mode:
+        print("グリーンバックモードが有効です")
+        background = ColorClip(size=(1920, 1080), color=config.BACKGROUND_COLOR).with_duration(current_time)   # 背景クリップを生成
+    else:
+        background = ColorClip(size=(1920, 1080), color=(0, 255, 0)).with_duration(current_time).with_opacity(0)    # 背景クリップを生成
     final = CompositeVideoClip([background] + clips, size=(1920, 1080)).with_duration(current_time) # すべてのクリップを合成
     return final
 
