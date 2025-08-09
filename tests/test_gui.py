@@ -28,7 +28,7 @@ class Editor(tkinter.Frame):
         self.text_entry_label.grid(row=0, column=0, padx=10, pady=(7, 2), sticky="nw")
 
         # コードエディタ本体
-        self.text_entry = scrolledtext.ScrolledText(self.root, font=("fonts/SourceHanCodeJP.ttf", 12), undo=True)
+        self.text_entry = scrolledtext.ScrolledText(self.root, font=("Consolas", 12), undo=True)
         self.text_entry.grid(row=1, column=0, rowspan=2, sticky="nsew", padx=10, pady=(0, 10))
 
         # 実行ログ ラベル
@@ -68,20 +68,20 @@ class Editor(tkinter.Frame):
     def run_execution(self):
         threading.Thread(target=self.execution, daemon=True).start()
         
-    def compile(self):
+    def compile_clip(self):
         print("コンパイルを開始します")
         clip = analyze_text(self.text_entry.get("1.0", tkinter.END))
         print("コンパイルが正常に完了しました")
         return clip
         
     def preview(self):
-        clip = compile()
+        clip = self.compile_clip()
         print("プレビューを表示します(音ズレは仕様です)")
         clip.preview(fps=2,audio_fps=11000,audio_buffersize=1000)  # プレビュー表示
             
     # 実行ボタンがクリックされたときの処理
     def execution(self):
-        clip = compile()
+        clip = self.compile_clip()
         clip = clip.with_fps(24)  # フレームレートを設定
 
         # 動画クリップの書き出し
