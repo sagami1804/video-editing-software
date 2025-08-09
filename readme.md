@@ -82,15 +82,16 @@ https://puarts.com/?pid=1830
   ```text
   \se{path=enter.wav}
   ```
-| option | 必須 | 初期値 | 説明 |
-| ---- | ---- | ---- | ---- |
+
 #### `\delay{duration}`
 - (duration)秒の間を挿入します
 - 例:
   ```text
   \delay{1.5}
   ```
-
+| option | 必須 | 初期値 | 説明 |
+| ---- | ---- | ---- | ---- |
+|duration|o|なし|間の時間を指定|
 ### 環境コマンド（画像や特殊レイアウトに使用）
 
 #### `\begin{環境名}[オプション]` ～ `\end{環境名}`
@@ -122,6 +123,9 @@ https://puarts.com/?pid=1830
 ~
 \end{bgm}
 ```
+| option | 必須 | 初期値 | 説明 |
+| ---- | ---- | ---- | ---- |
+|volume|o|なし|指定したbgmの音量の指定|
 ---
 
 ## 使用例1
