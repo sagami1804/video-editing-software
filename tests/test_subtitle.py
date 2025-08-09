@@ -8,7 +8,7 @@ from __init__ import *
 # 字幕クリップの作成
 def make_subtitle_clip(text, talker, config):
     # 音声合成の関数を呼び出して音声クリップを作成
-    voice_clip = make_voice_clip(text, speaker=config.SPERKERS[talker], speed=config.TALK_SPEED, silence_duration=config.SILENCE_DURATION)
+    voice_clip = make_voice_clip(text, speaker=config.SPEAKERS[talker], speed=config.TALK_SPEED, silence_duration=config.SILENCE_DURATION)
     clip_duration = voice_clip.duration
     
     
