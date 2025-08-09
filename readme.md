@@ -25,6 +25,11 @@
 
 #### `\setSubtitle{size=, color=, stroke_color=, stroke_width=, color2=, stroke_color2=}`
 
+| TH | TH |
+| ---- | ---- |
+| TD | TD |
+| TD | TD |
+
 - 字幕の見た目を設定します。
 - 例：  
   ```text
