@@ -13,7 +13,7 @@ def analyze_text(full_text, is_talk_mode):
     config = Config()  # 設定を初期化
     current_time = 0.0  # 現在の動画時間を初期化
     talker = 0
-    
+
     text_line = full_text.splitlines() # テキストを行単位で分割
     for line in text_line:
         # 行の前後の空白を削除
@@ -87,6 +87,8 @@ def analyze_text(full_text, is_talk_mode):
                     elif env_name == 'bgm':
                         bgm_time_stamps.append(current_time)  # BGMの開始時間を記録
                         bgms.append(parse_kwargs(arg,config))  # BGMのオプションを記録
+                    else:
+                        print("エラー：不明なコマンドです")
                         
                 elif command == 'end':  # 環境の終了
                     match = re.match(r"\\end\{(\w+)\}(?:\[(.*?)\])?", line)
