@@ -8,7 +8,7 @@ def analyze_text(full_text, is_talk_mode):
     analyzed_list = []  # 解析結果を格納するリスト
     clips = []  # 動画クリップを格納するリスト
     image_time_stamps = []    # 画像のタイムスタンプを格納するリスト
-    images = [] # 画像のパスを格納するリスト
+    images = [] # 画像のパスを格納するリスト[{path, z-index, tag, current_time},{path, z-index, tag, current_time}]
     bgm_time_stamps = []  # BGMのタイムスタンプを格納するリスト
     bgms = []  # BGMのパスを格納するリスト
     config = Config()  # 設定を初期化
@@ -65,7 +65,7 @@ def analyze_text(full_text, is_talk_mode):
                         print("seの引数が不正です。辞書形式で渡してください。")
                     
                 elif command == 'delay':    # 遅延時間の追加
-                    current_time += float(kwargs)
+                    current_time += float(kwargs['arg'])
                     
                 elif command == 'setSubtitle':  # 字幕設定の更新
                     if isinstance(kwargs, dict):
@@ -85,19 +85,29 @@ def analyze_text(full_text, is_talk_mode):
                         env_name = match.group(1)  # {}の中身
                         arg = match.group(2)       # []の中身（なければ None）
                     if env_name  == 'image':    # 画像クリップの開始
-                        image_time_stamps.append(current_time)    #画像の開始時間を記録
-                        images.append(arg)  # 画像のパスを記録
+                        new_image = parse_kwargs(arg,config)
+                        new_image['start_time'] = current_time  # 開始時間を記録
+                        images.append(new_image)  # 画像のパスを記録
                     elif env_name == 'bgm':
                         bgm_time_stamps.append(current_time)  # BGMの開始時間を記録
                         bgms.append(parse_kwargs(arg,config))  # BGMのオプションを記録
                         
                 elif command == 'end':  # 環境の終了
-                    match = re.match(r"\\end\{(\w+)\}", line)
+                    match = re.match(r"\\end\{(\w+)\}(?:\[(.*?)\])?", line)
                     if match:
                         env_name = match.group(1)  # {}の中身
-                        if env_name == 'image': # 画像クリップの終了
-                            clip = image(current_time, image_time_stamps[-1], images[-1]) # 画像クリップを生成
-                            clips.append({"clip": clip, "z": 0})
+                        arg = match.group(2)       # []の中身（なければ None）
+                        if env_name == 'image':  # 画像クリップの終了
+                            if arg:  # 引数がある場合
+                                clips_array = serch_image(arg, images, current_time)  # 画像のパスを検索
+                                clip = clips_array[0]  # 画像クリップを取得
+                                z = clips_array[1]  # z-indexを取得
+                                images.pop(clips_array[2])  # 使用済みの画像を削除
+                                clips.append({"clip": clip, "z": int(z)})  # 画像クリップを追加
+                            else:
+                                clip = image(current_time, images[-1]['start_time'], images[-1]['path'])  # 画像クリップを生成
+                                clips.append({"clip": clip, "z": int(images[-1].get('z',0))}) 
+                            
                         elif env_name == 'bgm':  # BGMの終了
                             clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])  # BGMクリップを生成
                             clips.append({"clip": clip, "z": 0}) 
@@ -119,12 +129,14 @@ def parse_kwargs(arg_str,config):
     if not arg_str:
         return {}
 
+    kwargs = {}
     # キー=値がない → 単一引数とみなす（位置引数として返す）
     if '=' not in arg_str:
-        return arg_str.strip()
+        kwargs['arg'] = arg_str.strip()
+        return kwargs
+    
 
     # キー=値のときは辞書にする
-    kwargs = {}
     for part in arg_str.split(','):
         if '=' in part:
             key, value = part.split('=', 1)
@@ -135,4 +147,12 @@ def parse_kwargs(arg_str,config):
     return kwargs
 
 
-
+def serch_image(arg, images, current_time):
+    print(f"画像検索: 引数='{arg}', 現在の時間={current_time}")
+    tag = arg.split('=', 1)[1]
+    for index, img in enumerate(images):
+        if 'tag' in img and img['tag'] == tag:
+            clip = image(current_time, img['start_time'], img['path'])
+            z = img.get('z', 0)  # z-indexを取得
+            return clip, z, index
+    return None, 0, -1
