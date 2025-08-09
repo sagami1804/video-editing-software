@@ -18,7 +18,7 @@ class Config:
     # 動画の設定
     TALK_SPEED = 1.2
     SILENCE_DURATION = 0.5  # 音声合成の間の無音時間（秒）
-    SPERKERS = [2,3]
+    SPEAKERS = [2,3]
 
 class TextRedirector:
     def __init__(self, text_widget):

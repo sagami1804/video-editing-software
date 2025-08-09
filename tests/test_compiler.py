@@ -62,6 +62,12 @@ def analyze_text(full_text, is_talk_mode):
                         set_subtitle(**kwargs)
                     else:
                         print("setSubtitleScaleの引数が不正です。辞書形式で渡してください。")
+
+                elif command == 'setTitle':  # 字幕設定の更新
+                    if isinstance(kwargs, dict):
+                        set_title(**kwargs)
+                    else:
+                        print("setTitleScaleの引数が不正です。辞書形式で渡してください。")
                         
                 elif command == 'setTalk': # 話すスピードの設定
                     if isinstance(kwargs, dict):
