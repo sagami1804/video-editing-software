@@ -4,27 +4,33 @@ from __init__ import *
 
 #画像クリップを生成
 def image(current_time, start_time, path):
-    img_clip = ImageClip(f"images/{path}").with_duration(current_time - start_time).with_start(start_time)
+
+    try:
+        img_clip = ImageClip(f"images/{path}").with_duration(current_time - start_time).with_start(start_time)
     
-    '''
-    # 画面にフィットするように拡大（どちらかが大きくなる）
-    img_clip = img_clip.resized(lambda t: max(1920 / img_clip.w, 1080 / img_clip.h))
+        '''
+        # 画面にフィットするように拡大（どちらかが大きくなる）
+        img_clip = img_clip.resized(lambda t: max(1920 / img_clip.w, 1080 / img_clip.h))
     
-    # 中心からクロップして1920x1080にする
-    img_clip = img_clip.cropped(x_center=img_clip.w / 2,
-                             y_center=img_clip.h / 2,
-                             width=1920, height=1080)
-    '''
-    img_clip = img_clip.with_position(('center', 'center'))
-    return img_clip
+        # 中心からクロップして1920x1080にする
+        img_clip = img_clip.cropped(x_center=img_clip.w / 2,
+                                 y_center=img_clip.h / 2,
+                                 width=1920, height=1080)
+        '''
+        img_clip = img_clip.with_position(('center', 'center'))
+        return img_clip
+    except Exception as e:
+        print("画像ファイルが読み込めません")
+        return None # エラー時はNoneを返す
     
 #タイトルクリップを生成
 def title(**kwargs):
     config = kwargs.get('config', Config())
     text = kwargs.get('text', ' ')
     duration = float(kwargs.get('duration', 3))
-    clip = TextClip(text=text, font_size=config.TITLE_FONT_SIZE, color=config.TITLE_FONT_COLOR, stroke_color=config.TITLE_FONT_STROKE_COLOR, stroke_width=config.TITLE_FONT_STROKE_WIDTH, font=config.TITLE_FONT, size=(1700, 600)).with_duration(duration)
-    clip = clip.with_position(('center', 'center'))
+    try:
+        clip = TextClip(text=text, font_size=config.TITLE_FONT_SIZE, color=config.TITLE_FONT_COLOR, stroke_color=config.TITLE_FONT_STROKE_COLOR, stroke_width=config.TITLE_FONT_STROKE_WIDTH, font=config.TITLE_FONT, size=(1700, 600)).with_duration(duration)
+        return clip.with_position(('center', 'center'))
     print(f"タイトルクリップを生成: テキスト='{text}', フォントサイズ={config.TITLE_FONT_SIZE}, 色={config.TITLE_FONT_COLOR}")
     return clip
 
