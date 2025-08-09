@@ -1,27 +1,27 @@
 import re
 from moviepy import *
 from __init__ import *
+import os
 
 #画像クリップを生成
 def image(current_time, start_time, path):
-    try:
-        img_clip = ImageClip(f"images/{path}").with_duration(current_time - start_time).with_start(start_time)
+    if not os.path.exists(path):
+        print(f"エラー: ファイルが見つかりません_{path}")
+        return None
     
-        '''
-        # 画面にフィットするように拡大（どちらかが大きくなる）
-        img_clip = img_clip.resized(lambda t: max(1920 / img_clip.w, 1080 / img_clip.h))
-    
-        # 中心からクロップして1920x1080にする
-        img_clip = img_clip.cropped(x_center=img_clip.w / 2,
-                                 y_center=img_clip.h / 2,
-                                 width=1920, height=1080)
-        '''
-        img_clip = img_clip.with_position(('center', 'center'))
-        print(f"画像クリップを生成: パス='{path}', 開始時間={start_time}, 終了時間={current_time}")
-        return img_clip
-    except Exception as e:
-        print(f"エラー:画像ファイルが読み込めません_{path}")
-        return None # エラー時はNoneを返す
+    img_clip = ImageClip(f"images/{path}").with_duration(current_time - start_time).with_start(start_time)
+    '''
+    # 画面にフィットするように拡大（どちらかが大きくなる）
+    img_clip = img_clip.resized(lambda t: max(1920 / img_clip.w, 1080 / img_clip.h))
+
+    # 中心からクロップして1920x1080にする
+    img_clip = img_clip.cropped(x_center=img_clip.w / 2,
+                                y_center=img_clip.h / 2,
+                                width=1920, height=1080)
+    '''
+    img_clip = img_clip.with_position(('center', 'center'))
+    print(f"画像クリップを生成: パス='{path}', 開始時間={start_time}, 終了時間={current_time}")
+    return img_clip
     
 #タイトルクリップを生成
 def title(**kwargs):
@@ -41,29 +41,31 @@ def title(**kwargs):
 def se(**kwargs):
     path = kwargs.get('path', 'default_se.wav')
     volume = float(kwargs.get('volume', 0.7))
-    try:
-        se = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
-        background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(se.duration).with_opacity(0)
-        se = background.with_audio(se) 
-        print(f"SEクリップを生成: パス='{path}', ボリューム={volume}")
-        return se
-    except Exception as e:
-        print(f"エラー:SEファイルが読み込めません_{path}")
-        return None     
+    
+    if not os.path.exists(path):
+        print(f"エラー: ファイルが見つかりません_{path}")
+        return None
+
+    se = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
+    background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(se.duration).with_opacity(0)
+    se = background.with_audio(se) 
+    print(f"SEクリップを生成: パス='{path}', ボリューム={volume}")
+    return se
 
 def bgm(current_time, start_time, kwargs):
     path = kwargs.get('path', 'default_bgm.mp3')
     volume = float(kwargs.get('volume', 0.2))
-    try:
-        bgm_clip = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
-        bgm_loop = bgm_clip.with_effects([afx.AudioLoop(duration=current_time - start_time)])
-        background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(bgm_loop.duration).with_opacity(0)
-        bgm_clip = background.with_audio(bgm_loop).with_start(start_time)
-        print(f"BGMクリップを生成: パス='{path}', ボリューム={volume}, 開始時間={start_time}, 終了時間={current_time}")
-        return bgm_clip
-    except Exception as e:
-        print(f"エラー:BGMファイルが読み込めません_{path}")
+    
+    if not os.path.exists(path):
+        print(f"エラー: ファイルが見つかりません_{path}")
         return None
+    
+    bgm_clip = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
+    bgm_loop = bgm_clip.with_effects([afx.AudioLoop(duration=current_time - start_time)])
+    background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(bgm_loop.duration).with_opacity(0)
+    bgm_clip = background.with_audio(bgm_loop).with_start(start_time)
+    print(f"BGMクリップを生成: パス='{path}', ボリューム={volume}, 開始時間={start_time}, 終了時間={current_time}")
+    return bgm_clip
 
 #字幕設定を更新
 def set_subtitle(**kwargs):
