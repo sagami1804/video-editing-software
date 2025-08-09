@@ -4,7 +4,6 @@ from __init__ import *
 
 #画像クリップを生成
 def image(current_time, start_time, path):
-
     try:
         img_clip = ImageClip(f"images/{path}").with_duration(current_time - start_time).with_start(start_time)
     
@@ -21,7 +20,7 @@ def image(current_time, start_time, path):
         print(f"画像クリップを生成: パス='{path}', 開始時間={start_time}, 終了時間={current_time}")
         return img_clip
     except Exception as e:
-        print(f"画像ファイルが読み込めません{e}")
+        print(f"エラー:画像ファイルが読み込めません_{e}")
         return None # エラー時はNoneを返す
     
 #タイトルクリップを生成
@@ -34,7 +33,7 @@ def title(**kwargs):
         print(f"タイトルクリップを生成: テキスト='{text}', フォントサイズ={config.TITLE_FONT_SIZE}, 色={config.TITLE_FONT_COLOR}, ストローク色={config.TITLE_FONT_STROKE_COLOR}, ストローク幅={config.TITLE_FONT_STROKE_WIDTH}")
         return clip.with_position(('center', 'center'))
     except Exception as e:
-        print(f"タイトルクリップの生成に失敗: {e}")
+        print(f"エラー:タイトルクリップの生成に失敗_{e}")
         return None
 
 
