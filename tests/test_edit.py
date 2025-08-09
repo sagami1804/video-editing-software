@@ -43,6 +43,7 @@ def title(**kwargs):
     duration = float(kwargs.get('duration', 3))
     clip = TextClip(text=text, font_size=config.TITLE_FONT_SIZE, color=config.TITLE_FONT_COLOR, font=config.TITLE_FONT, size=(1700, 300)).with_duration(duration)
     clip = clip.with_position(('center', 'center'))
+    print(f"タイトルクリップを生成: テキスト='{text}', フォントサイズ={config.TITLE_FONT_SIZE}, 色={config.TITLE_FONT_COLOR}")
     return clip
 
 #SEクリップを生成
@@ -52,6 +53,7 @@ def se(**kwargs):
     se = AudioFileClip(f"sounds/{path}").with_volume_scaled(volume)
     background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(se.duration).with_opacity(0)
     se = background.with_audio(se)      
+    print(f"SEクリップを生成: パス='{path}', ボリューム={volume}")
     return se
 
 def bgm(current_time, start_time, kwargs):
@@ -61,6 +63,7 @@ def bgm(current_time, start_time, kwargs):
     bgm_loop = bgm_clip.with_effects([afx.AudioLoop(duration=current_time - start_time)])
     background = ColorClip(size=(1920, 1080), color=(0, 0, 0)).with_duration(bgm_loop.duration).with_opacity(0)
     bgm_clip = background.with_audio(bgm_loop).with_start(start_time)
+    print(f"BGMクリップを生成: パス='{path}', ボリューム={volume}, 開始時間={start_time}, 現在の時間={current_time}")
     return bgm_clip
 
 #字幕設定を更新
@@ -86,5 +89,7 @@ def set_talk(**kwargs):
     config = kwargs.get('config', Config())
     config.TALK_SPEED = float(kwargs.get('speed', config.TALK_SPEED))
     config.SILENCE_DURATION = float(kwargs.get('silence_duration', config.SILENCE_DURATION))
-    print(f"話すスピードを設定: {config.TALK_SPEED}")
+    config.SPEAKERS[0] = int(kwargs.get('talker1',1))
+    config.SPEAKERS[1] = int(kwargs.get('talker2',2))
+    print(f"話すスピードを更新: スピード={config.TALK_SPEED}, 無音時間={config.SILENCE_DURATION}, トーカー1={config.SPEAKERS[0]}, トーカー2={config.SPEAKERS[1]}")
     
