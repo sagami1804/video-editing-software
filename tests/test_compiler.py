@@ -45,15 +45,6 @@ def analyze_text(full_text, is_talk_mode):
                         print("titleの引数が不正です。辞書形式で渡してください。")
                     clips.append({"clip": clip, "z": 1})  # タイトルクリップを追加
                     current_time += clip.duration   # 現在の動画時間を更新
-                
-                elif command == 'image':
-                    if isinstance(kwargs, dict):
-                        clip = image_overlay(**kwargs) 
-                        if clip:
-                            z_index = int(kwargs.get('z', 1))
-
-                            clips.append({"clip": clip.with_start(current_time), "z": z_index})
-                
 
                 # SEクリップの生成
                 elif command == 'se':
