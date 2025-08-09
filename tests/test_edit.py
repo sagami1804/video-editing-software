@@ -15,6 +15,15 @@ def image(current_time, start_time, path):
                              width=1920, height=1080)
     img_clip = img_clip.with_position(('center', 'center'))
     return img_clip
+
+#期間中の背景画像の生成
+def image_overlay(**kwargs):
+
+    path = kwargs.get('path')
+    duration = float(kwargs.get('duration', 3))
+    position = kwargs.get('position', 'center') # 位置のデフォルトは中央
+
+    
     
 #タイトルクリップを生成
 def title(**kwargs):

@@ -88,7 +88,7 @@ def analyze_text(full_text):
                             clips.append({"clip": clip, "z": 0})
                         elif env_name == 'bgm':  # BGMの終了
                             clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])  # BGMクリップを生成
-                            clips.append({"clip": clip, "z": 0})
+                            clips.append({"clip": clip, "z": 0}) 
                             
         else:   # テキスト行の処理
             clip = make_subtitle_clip(line,config).with_start(current_time) # 字幕クリップの生成
