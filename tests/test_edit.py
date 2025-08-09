@@ -70,8 +70,12 @@ def bgm(current_time, start_time, kwargs):
 def set_subtitle(**kwargs):
     config = kwargs.get('config', Config())
     config.SUBTITLE_FONT_SIZE = int(kwargs.get('size', config.SUBTITLE_FONT_SIZE))
-    config.SUBTITLE_FONT_COLOR = kwargs.get('color', config.SUBTITLE_FONT_COLOR)
-    config.SUBTITLE_FONT_STROKE_COLOR = kwargs.get('stroke_color', config.SUBTITLE_FONT_STROKE_COLOR)
+    config.SUBTITLE_FONT_COLOR[0] = kwargs.get('color', config.SUBTITLE_FONT_COLOR)
+    config.SUBTITLE_FONT_STROKE_COLOR[0] = kwargs.get('stroke_color', config.SUBTITLE_FONT_STROKE_COLOR)
+    config.SUBTITLE_FONT_COLOR[0] = kwargs.get('color1', config.SUBTITLE_FONT_COLOR)
+    config.SUBTITLE_FONT_STROKE_COLOR[0] = kwargs.get('stroke_color1', config.SUBTITLE_FONT_STROKE_COLOR)
+    config.SUBTITLE_FONT_COLOR[1] = kwargs.get('color2', config.SUBTITLE_FONT_COLOR)
+    config.SUBTITLE_FONT_STROKE_COLOR[1] = kwargs.get('stroke_color2', config.SUBTITLE_FONT_STROKE_COLOR)
     config.SUBTITLE_FONT_STROKE_WIDTH = int(kwargs.get('stroke_width', config.SUBTITLE_FONT_STROKE_WIDTH))
     print(f"字幕の設定を更新: フォントサイズ={config.SUBTITLE_FONT_SIZE}, 色={config.SUBTITLE_FONT_COLOR}, ストローク色={config.SUBTITLE_FONT_STROKE_COLOR}, ストローク幅={config.SUBTITLE_FONT_STROKE_WIDTH}")
     
@@ -89,7 +93,7 @@ def set_talk(**kwargs):
     config = kwargs.get('config', Config())
     config.TALK_SPEED = float(kwargs.get('speed', config.TALK_SPEED))
     config.SILENCE_DURATION = float(kwargs.get('silence_duration', config.SILENCE_DURATION))
-    config.SPEAKERS[0] = int(kwargs.get('talker1',1))
-    config.SPEAKERS[1] = int(kwargs.get('talker2',2))
+    config.SPEAKERS[0] = int(kwargs.get('talker1',2))
+    config.SPEAKERS[1] = int(kwargs.get('talker2',3))
     print(f"話すスピードを更新: スピード={config.TALK_SPEED}, 無音時間={config.SILENCE_DURATION}, トーカー1={config.SPEAKERS[0]}, トーカー2={config.SPEAKERS[1]}")
     

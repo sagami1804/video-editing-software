@@ -4,9 +4,9 @@ class Config:
     # 字幕の設定
     SUBTITLE_FONT = "fonts/Corporate-Logo-Rounded-Bold-ver3.otf"
     SUBTITLE_FONT_SIZE = 35
-    SUBTITLE_FONT_COLOR = 'white'
-    SUBTITLE_FONT_STROKE_COLOR = 'black'
-    SUBTITLE_FONT_STROKE_WIDTH = 2
+    SUBTITLE_FONT_COLOR = ['white', 'white']
+    SUBTITLE_FONT_STROKE_COLOR = ['#FF00BF', "#00CC1B"]
+    SUBTITLE_FONT_STROKE_WIDTH = 4
 
     # タイトルの設定
     TITLE_FONT = "fonts/Corporate-Logo-Rounded-Bold-ver3.otf"
