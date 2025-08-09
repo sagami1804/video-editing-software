@@ -5,7 +5,7 @@ import os
 
 #画像クリップを生成
 def image(current_time, start_time, path):
-    if not os.path.exists(path):
+    if not os.path.exists(f"images/{path}"):
         print(f"エラー: ファイルが見つかりません_{path}")
         return None
     
@@ -39,10 +39,10 @@ def title(**kwargs):
 
 #SEクリップを生成
 def se(**kwargs):
-    path = kwargs.get('path', 'default_se.wav')
+    path = kwargs['path']
     volume = float(kwargs.get('volume', 0.7))
     
-    if not os.path.exists(path):
+    if not os.path.exists(f"sounds/{path}"):
         print(f"エラー: ファイルが見つかりません_{path}")
         return None
 
@@ -53,10 +53,10 @@ def se(**kwargs):
     return se
 
 def bgm(current_time, start_time, kwargs):
-    path = kwargs.get('path', 'default_bgm.mp3')
+    path = kwargs['path']
     volume = float(kwargs.get('volume', 0.2))
     
-    if not os.path.exists(path):
+    if not os.path.exists(f"sounds/{path}"):
         print(f"エラー: ファイルが見つかりません_{path}")
         return None
     
