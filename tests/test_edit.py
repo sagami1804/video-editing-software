@@ -21,7 +21,7 @@ def image(current_time, start_time, path):
         print(f"画像クリップを生成: パス='{path}', 開始時間={start_time}, 終了時間={current_time}")
         return img_clip
     except Exception as e:
-        print("画像ファイルが読み込めません")
+        print(f"画像ファイルが読み込めません{e}")
         return None # エラー時はNoneを返す
     
 #タイトルクリップを生成

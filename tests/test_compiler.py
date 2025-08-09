@@ -41,8 +41,10 @@ def analyze_text(full_text, is_talk_mode):
                 if command == 'title':  # タイトルクリップの生成
                     if isinstance(kwargs, dict):    # 辞書形式で引数が渡された場合
                         clip = title(**kwargs).with_start(current_time)
+                        if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
                     else:
-                        print("titleの引数が不正です。辞書形式で渡してください。")
+                        print(f"エラー:titleの引数が不正です。辞書形式で渡してください。_{line}")
+                        return None
                     clips.append({"clip": clip, "z": 1})  # タイトルクリップを追加
                     current_time += clip.duration   # 現在の動画時間を更新
 
@@ -50,9 +52,10 @@ def analyze_text(full_text, is_talk_mode):
                 elif command == 'se':
                     if isinstance(kwargs, dict):
                         clip = se(**kwargs).with_start(current_time)  # SEクリップの生成
+                        if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
                         clips.append({"clip": clip, "z": 0})  # SEクリップを追加
                     else:
-                        print("seの引数が不正です。辞書形式で渡してください。")
+                        print(f"エラー:seの引数が不正です。辞書形式で渡してください。_{line}")
                     
                 elif command == 'delay':    # 遅延時間の追加
                     current_time += float(kwargs['arg'])
@@ -61,19 +64,19 @@ def analyze_text(full_text, is_talk_mode):
                     if isinstance(kwargs, dict):
                         set_subtitle(**kwargs)
                     else:
-                        print("setSubtitleScaleの引数が不正です。辞書形式で渡してください。")
+                        print(f"エラー:setSubtitleScaleの引数が不正です。辞書形式で渡してください。_{line}")
 
                 elif command == 'setTitle':  # 字幕設定の更新
                     if isinstance(kwargs, dict):
                         set_title(**kwargs)
                     else:
-                        print("setTitleScaleの引数が不正です。辞書形式で渡してください。")
+                        print(f"エラー:setTitleScaleの引数が不正です。辞書形式で渡してください。_{line}")
                         
                 elif command == 'setTalk': # 話すスピードの設定
                     if isinstance(kwargs, dict):
                         set_talk(**kwargs)
                     else:
-                        print("setTalkSpeedの引数が不正です。辞書形式で渡してください。")
+                        print(f"エラー:setTalkSpeedの引数が不正です。辞書形式で渡してください。_{line}")
                 
                 elif command == 'begin':    # 環境の開始
                     match = re.match(r"\\begin\{(\w+)\}(?:\[(.*?)\])?", line)
@@ -103,6 +106,7 @@ def analyze_text(full_text, is_talk_mode):
                             if arg:  # 引数がある場合
                                 clips_array = serch_image(arg, images, current_time)  # 画像のパスを検索
                                 clip = clips_array[0]  # 画像クリップを取得
+                                if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
                                 z = clips_array[1]  # z-indexを取得
                                 images.pop(clips_array[2])  # 使用済みの画像を削除
                                 clips.append({"clip": clip, "z": int(z)})  # 画像クリップを追加
@@ -112,6 +116,7 @@ def analyze_text(full_text, is_talk_mode):
                             
                         elif env_name == 'bgm':  # BGMの終了
                             clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])  # BGMクリップを生成
+                            if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
                             clips.append({"clip": clip, "z": 0}) 
                         else:
                             print(f"エラー：不明なコマンドです_{line}")
@@ -128,8 +133,10 @@ def analyze_text(full_text, is_talk_mode):
                             
         else:   # テキスト行の処理
             clip = make_subtitle_clip(line, talker, config).with_start(current_time) # 字幕クリップの生成
+            if clip is None: return None  # クリップの生成に失敗した場合はNoneを返す
             clips.append({"clip": clip, "z": 5})  # 字幕クリップを追加
             current_time += clip.duration   # 現在の動画時間を更新
+    
     
     # クリップを結合
     clips = [item["clip"] for item in sorted(clips, key=lambda x: x["z"])]  # z値でソート
