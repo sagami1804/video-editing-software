@@ -80,13 +80,19 @@ def analyze_text(full_text, is_talk_mode):
                     if match:
                         env_name = match.group(1)  # {}の中身
                         arg = match.group(2)       # []の中身（なければ None）
-                    if env_name  == 'image':    # 画像クリップの開始
-                        new_image = parse_kwargs(arg,config)
-                        new_image['start_time'] = current_time  # 開始時間を記録
-                        images.append(new_image)  # 画像のパスを記録
-                    elif env_name == 'bgm':
-                        bgm_time_stamps.append(current_time)  # BGMの開始時間を記録
-                        bgms.append(parse_kwargs(arg,config))  # BGMのオプションを記録
+                        if env_name  == 'image':    # 画像クリップの開始
+                            new_image = parse_kwargs(arg,config)
+                            new_image['start_time'] = current_time  # 開始時間を記録
+                            images.append(new_image)  # 画像のパスを記録
+                        elif env_name == 'bgm':
+                            bgm_time_stamps.append(current_time)  # BGMの開始時間を記録
+                            bgms.append(parse_kwargs(arg,config))  # BGMのオプションを記録
+                        else:
+                            print(f"エラー：不明なコマンドです_{line}")
+                            return None # エラー時はNoneを返す
+                    else:
+                        print(f"エラー：不明なコマンドです_{line}")
+                        return None # エラー時はNoneを返す
                         
                 elif command == 'end':  # 環境の終了
                     match = re.match(r"\\end\{(\w+)\}(?:\[(.*?)\])?", line)
@@ -156,7 +162,6 @@ def parse_kwargs(arg_str,config):
 
 
 def serch_image(arg, images, current_time):
-    print(f"画像検索: 引数='{arg}', 現在の時間={current_time}")
     tag = arg.split('=', 1)[1]
     for index, img in enumerate(images):
         if 'tag' in img and img['tag'] == tag:

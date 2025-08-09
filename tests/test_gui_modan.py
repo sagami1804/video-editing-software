@@ -21,6 +21,8 @@ class TextRedirector:
 
 def preview_worker(text, talk_mode):
     clip = analyze_text(text, talk_mode).resized((896, 504)).with_fps(3)
+    if clip is None:
+        return
     try:
         clip.preview(fps=3, audio_fps=11100)
     except OSError:
@@ -147,12 +149,14 @@ class Editor(ctk.CTk):
         clip = analyze_text(self.text_entry.get("1.0", "end"), self.is_talk_mode.get())
         if clip is None:
             print("コンパイルが失敗しました")
-
+            return None
         print("コンパイルが正常に完了しました")
         return clip
 
     def execution(self):
         clip = self.compile_clip()
+        if clip is None:
+            return
         clip = clip.with_fps(24)
         print("動画クリップの書き出しを開始します...")
         clip.write_videofile(

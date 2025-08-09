@@ -18,6 +18,7 @@ def image(current_time, start_time, path):
                                  width=1920, height=1080)
         '''
         img_clip = img_clip.with_position(('center', 'center'))
+        print(f"画像クリップを生成: パス='{path}', 開始時間={start_time}, 終了時間={current_time}")
         return img_clip
     except Exception as e:
         print("画像ファイルが読み込めません")
@@ -30,6 +31,7 @@ def title(**kwargs):
     duration = float(kwargs.get('duration', 3))
     try:
         clip = TextClip(text=text, font_size=config.TITLE_FONT_SIZE, color=config.TITLE_FONT_COLOR, stroke_color=config.TITLE_FONT_STROKE_COLOR, stroke_width=config.TITLE_FONT_STROKE_WIDTH, font=config.TITLE_FONT, size=(1700, 600)).with_duration(duration)
+        print(f"タイトルクリップを生成: テキスト='{text}', フォントサイズ={config.TITLE_FONT_SIZE}, 色={config.TITLE_FONT_COLOR}, ストローク色={config.TITLE_FONT_STROKE_COLOR}, ストローク幅={config.TITLE_FONT_STROKE_WIDTH}")
         return clip.with_position(('center', 'center'))
     except Exception as e:
         print(f"タイトルクリップの生成に失敗: {e}")
