@@ -52,7 +52,7 @@
 | option | 必須 | 初期値 | 説明 |
 | ---- | ---- | ---- | ---- |
 |speed|x|1.2|音声スピードを指定する|
-|silence_duration|x|0.5|音量を指定する|
+|silence_duration|x|0.5|次の字幕までの間の長さを指定する|
 |talker1|x|2|メインボイスキャラクターを指定する|
 |talker2|x|3|サブボイスキャラクターを指定する|
 - 合成音声（VoiceVox）の設定を行います。
@@ -72,7 +72,9 @@ https://puarts.com/?pid=1830
   ```text
   \title{text=はじめに, duration=3}
   ```
-
+| option | 必須 | 初期値 | 説明 |
+| ---- | ---- | ---- | ---- |
+|duration|o|なし|タイトルテキストの表示時間を指定|
 #### `\se{path=}`
 
 - SE（効果音）を挿入します。
@@ -80,7 +82,8 @@ https://puarts.com/?pid=1830
   ```text
   \se{path=enter.wav}
   ```
-
+| option | 必須 | 初期値 | 説明 |
+| ---- | ---- | ---- | ---- |
 #### `\delay{duration}`
 - (duration)秒の間を挿入します
 - 例:
