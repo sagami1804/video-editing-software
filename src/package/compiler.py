@@ -147,11 +147,11 @@ def handle_end_env(line, current_time, images, clips, bgm_time_stamps, bgms, tal
             images.pop(idx)
             clips.append({"clip": clip, "z": int(z)})
         else:
-            last_image = images[-1]
-            clip = image(current_time, last_image['start_time'], last_image['path'])
-            if clip is None:
+            last_image, z, idx = serch_last_image(images, current_time)
+            if last_image is None:
                 return None
-            clips.append({"clip": clip, "z": int(last_image.get('z', 0))})
+            images.pop(idx)
+            clips.append({"clip": last_image, "z": int(z)})
 
     elif env_name == 'bgm':
         clip = bgm(current_time, bgm_time_stamps[-1], bgms[-1])
@@ -184,6 +184,19 @@ def serch_image(arg, images, current_time):
     tag = arg.split('=', 1)[1]
     for index, img in enumerate(images):
         if img.get('tag') == tag:
+            clip = image(current_time, img['start_time'], img['path'])
+            return clip, img.get('z', 0), index
+    return None, 0, -1
+
+# ------------------------------------------------------------
+# タグがない最後の画像を検索してクリップ生成 
+# ------------------------------------------------------------
+def serch_last_image(images, current_time):
+    if not images:
+        return None, 0, -1
+
+    for index, img in reversed(list(enumerate(images))):
+        if img.get('tag') is None:
             clip = image(current_time, img['start_time'], img['path'])
             return clip, img.get('z', 0), index
     return None, 0, -1

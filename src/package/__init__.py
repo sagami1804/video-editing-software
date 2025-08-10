@@ -13,10 +13,10 @@ class Config:
     TITLE_FONT_SIZE = 100
     TITLE_FONT_COLOR = 'white'
     TITLE_FONT_STROKE_COLOR = 'black'
-    TITLE_FONT_STROKE_WIDTH = 3
+    TITLE_FONT_STROKE_WIDTH = 6
 
     # 動画の設定
-    TALK_SPEED = 1.2
+    TALK_SPEED = 1.1
     SILENCE_DURATION = 0.5  # 音声合成の間の無音時間（秒）
     SPEAKERS = [2,3]
     BACKGROUND_COLOR = (0,255,0)  # グリーンバックモードの背景色
