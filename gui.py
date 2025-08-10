@@ -44,7 +44,7 @@ class TextRedirector:
         pass
 
 class Editor(ctk.CTk):
-    WINDOW_TITLE = "モダンエディタ"
+    WINDOW_TITLE = "ClipScriptor"
     WINDOW_SIZE = "1000x800"
     FONT_MAIN = ("Meiryo", 11, "bold")
     FONT_CODE = ("Consolas", 14)
