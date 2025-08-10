@@ -24,6 +24,7 @@
 ### `\setTitle{font=Corporate-Logo-Rounded-Bold-ver3.otf, size=100, color=white, stroke_color=black, stroke_width=3}`
 
 - タイトルのスタイルを設定します。
+
 | option       | 必須 | 説明                       |
 | ------------ | ---- | -------------------------- |
 | font           |      | フォントを指定する       |
