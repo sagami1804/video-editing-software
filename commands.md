@@ -1,4 +1,6 @@
 ## コマンド一覧
+- 字幕の色指定はImageMagickの形式に対応しています。
+[Color Names - ImageMagick](https://imagemagick.org/script/color.php)
 
 ### 基本設定系コマンド（文の前に記述することを推奨）
 
